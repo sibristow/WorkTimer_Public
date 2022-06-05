@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Version>0.4.0</Version>
+    <Product>Work Timer 4 API</Product>
+    <Authors>Simon Bristow</Authors>
+    <Description>API for Work Timer 4</Description>
+    <PackageId>WorkTimer4.API</PackageId>
+    <AssemblyName>WorkTimer4.API</AssemblyName>
+    <RootNamespace>WorkTimer4.API</RootNamespace>
+  </PropertyGroup>
+
+</Project>

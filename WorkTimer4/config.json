@@ -1,0 +1,8 @@
+{
+  "projectConnector": "WorkTimer4.Connectors.DefaultProjectConnector, WorkTimer4, Version=0.4.0.0, Culture=neutral, PublicKeyToken=null",
+  "projectConnectorOptions": {
+  },
+  "timesheetConnector": "WorkTimer4.Connectors.DefaultTimesheetConnector, WorkTimer4, Version=0.4.0.0, Culture=neutral, PublicKeyToken=null",
+  "timesheetConnectorOptions": {
+  }
+}

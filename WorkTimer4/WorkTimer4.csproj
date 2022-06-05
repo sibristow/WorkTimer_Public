@@ -1,0 +1,76 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationIcon>Assets\clock_blue.ico</ApplicationIcon>
+    <Nullable>enable</Nullable>
+    <AssemblyName>WorkTimer4</AssemblyName>
+    <AssemblyTitle>Work Timer 4</AssemblyTitle>
+    <Version>0.4.0</Version>
+    <Authors>Simon Bristow</Authors>
+    <Company />
+    <Product>Work Timer 4</Product>
+    <PackageIcon>clock.png</PackageIcon>
+    <StartupObject>WorkTimer4.App</StartupObject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Data_V1\**" />
+    <EmbeddedResource Remove="Data_V1\**" />
+    <None Remove="Data_V1\**" />
+    <Page Remove="Data_V1\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\clock_blue.ico" />
+    <None Remove="Assets\clock_red.ico" />
+    <None Remove="Assets\folder_image.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
+    <PackageReference Include="PropertyTools.Wpf" Version="3.1.0" />
+    <PackageReference Include="System.Composition" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WorkTimer.API\WorkTimer4.API.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\arrow_refresh.png" />
+    <Resource Include="Assets\clock.png" />
+    <Resource Include="Assets\clock_blue.ico" />
+    <Resource Include="Assets\clock_red.ico" />
+    <Resource Include="Assets\clock_red.png" />
+    <Resource Include="Assets\control_pause.png" />
+    <Resource Include="Assets\cross.png" />
+    <Resource Include="Assets\error.png" />
+    <Resource Include="Assets\folder_image.png" />
+    <Resource Include="Assets\tag_blue.png" />
+    <Resource Include="Assets\tag_green.png" />
+    <Resource Include="Assets\tag_none.png" />
+    <Resource Include="Assets\tag_orange.png" />
+    <Resource Include="Assets\tag_pink.png" />
+    <Resource Include="Assets\tag_purple.png" />
+    <Resource Include="Assets\tag_red.png" />
+    <Resource Include="Assets\tag_yellow.png" />
+    <Resource Include="Assets\tick.png" />
+    <Resource Include="Assets\time.png" />
+    <Resource Include="Assets\wrench.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="projects.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
