@@ -17,8 +17,9 @@ namespace WorkTimer4.Connectors
 
 
         public DefaultProjectConnector()
-        {
-            this.DataFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "WorkTimer", "projects.json");            
+        {            
+            this.DataFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "WorkTimer", "projects.json");
+            this.ReloadOnChanges = true;
         }
 
         protected override IEnumerable<Project> FromDeserialised(ProjectsData deserialised)

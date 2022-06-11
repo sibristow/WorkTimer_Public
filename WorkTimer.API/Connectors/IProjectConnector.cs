@@ -1,9 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace WorkTimer4.API.Connectors
 {
     public interface IProjectConnector
     {
+        /// <summary>
+        /// Event raised when the IProjectConnector instance requests the app to reload the project
+        /// </summary>
+        /// <remarks>
+        /// Raised e.g. if the project json file is changed externally
+        /// </remarks>
+        event EventHandler<EventArgs> ProjectReloadRequest;
+
         /// <summary>
         /// Gets the name of the connector
         /// </summary>

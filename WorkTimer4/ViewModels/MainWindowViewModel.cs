@@ -202,11 +202,10 @@ namespace WorkTimer4.ViewModels
             // update the current app config
             this.applicationConfig.ProjectConnector = this.SelectedProjectConnector;
             this.applicationConfig.TimesheetConnector = this.SelectedTimesheetConnector;
-            this.applicationConfig.Projects = new ObservableCollection<ProjectGroup>(this.ProjectList);
 
             // save the project list
             var projects = this.ProjectList.SelectMany(pg => pg.Projects);
-            this.applicationConfig.ProjectConnector.WriteProjects(projects);
+            this.applicationConfig.ProjectConnector.WriteProjects(projects);            
 
             // save the app config
             ApplicationConfig.Save(this.applicationConfig);

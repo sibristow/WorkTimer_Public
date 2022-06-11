@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using WorkTimer4.API.Connectors;
 using WorkTimer4.API.Data;
@@ -14,7 +15,21 @@ namespace WorkTimer4
 {
     internal class ApplicationConfig
     {
-        public IProjectConnector? ProjectConnector { get; set; }
+        private IProjectConnector? projectConnector;
+
+        public IProjectConnector? ProjectConnector
+        {
+            get
+            {
+                return projectConnector;
+            }
+            set
+            {
+                this.DetachProjectConnectorEvents();
+                projectConnector = value;
+                this.AttachProjectConnectorEvents();
+            }
+        }       
 
         public ITimesheetConnector? TimesheetConnector { get; set; }
 
@@ -65,7 +80,7 @@ namespace WorkTimer4
                 TimesheetConnectorOptions = GetOptions(config.TimesheetConnector)
             };
 
-            var serialised = JsonSerializer.Serialize(configJson);
+            var serialised = JsonSerializer.Serialize(configJson, JsonSerialisation.SerialiserOptions);
             File.WriteAllText("config.json", serialised);
         }
 
@@ -101,9 +116,23 @@ namespace WorkTimer4
             return provider;
         }
 
+        /// <summary>
+        /// Creates a new connector instance from its type string and sets the properties from the options dictionary
+        /// </summary>
+        /// <typeparam name="TConnector"></typeparam>
+        /// <typeparam name="TDefault"></typeparam>
+        /// <param name="connectorTypeString"></param>
+        /// <param name="connectorOptions"></param>
+        /// <returns></returns>
         private static TConnector CreateConnector<TConnector, TDefault>(string connectorTypeString, Dictionary<string, object> connectorOptions)
         {
-            var type = System.Type.GetType(connectorTypeString);
+            Type? type = null;
+
+            // string may be empty/null if config json was not deserialisd or property is missing/empty
+            if (!string.IsNullOrWhiteSpace(connectorTypeString))
+            {              
+                type = Type.GetType(connectorTypeString);
+            }
 
             if (type == null || !type.IsAssignableTo(typeof(TConnector)))
             {
@@ -111,17 +140,17 @@ namespace WorkTimer4
             }
 
             // create an instance of the required connector
-            TConnector connector = (TConnector)System.Activator.CreateInstance(type);
+            TConnector connector = (TConnector)Activator.CreateInstance(type);
 
             if (connector == null)
             {
-                throw new System.Exception($"Cannot create instance of {typeof(TConnector)}");
+                throw new Exception($"Cannot create instance of {typeof(TConnector)}");
             }
 
             // set the connector's options
             foreach (var providerOption in connectorOptions)
             {
-                var propInfo = type.GetProperty(providerOption.Key, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                var propInfo = type.GetProperty(providerOption.Key, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
                 if (propInfo == null || propInfo.SetMethod == null)
                     continue;
 
@@ -134,6 +163,12 @@ namespace WorkTimer4
             return connector;
         }
 
+        /// <summary>
+        /// Creates a new connector instance from an existing connector instance
+        /// </summary>
+        /// <typeparam name="TConnector"></typeparam>
+        /// <param name="sourceConnector"></param>
+        /// <returns></returns>
         private static TConnector? CreateConnector<TConnector>(TConnector sourceConnector)
         {
             if (sourceConnector == null)
@@ -142,14 +177,15 @@ namespace WorkTimer4
             var type = sourceConnector.GetType();
 
             // create an instance of the required connector
-            TConnector newConnector = (TConnector)System.Activator.CreateInstance(type);
+            TConnector newConnector = (TConnector)Activator.CreateInstance(type);
 
             if (newConnector == null)
             {
-                throw new System.Exception($"Cannot create instance of {typeof(TConnector)}");
+                throw new Exception($"Cannot create instance of {typeof(TConnector)}");
             }
 
-            var sourceProps = type.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            // set the properties
+            var sourceProps = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             foreach(var sourceProp in sourceProps)
             {
                 if (sourceProp.SetMethod == null)
@@ -169,7 +205,7 @@ namespace WorkTimer4
             if (connector == null)
                 return dictionary;
 
-            var sourceProps = connector.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            var sourceProps = connector.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
             foreach (var sourceProp in sourceProps)
             {
                 if (sourceProp.SetMethod == null)
@@ -184,7 +220,7 @@ namespace WorkTimer4
         }
 
 
-        private void GetProjects()
+        internal void GetProjects()
         {
             this.Projects.Clear();
 
@@ -210,7 +246,31 @@ namespace WorkTimer4
             }
 
             var groupedProjects = dictionary.OrderBy(d => d.Key).Select(d => new ProjectGroup(d.Key, d.Value.OrderBy(v => v.Name)));
-            this.Projects = new ObservableCollection<ProjectGroup>(groupedProjects);
+            foreach(var gp in groupedProjects)
+            {
+                this.Projects.Add(gp);
+            }
+        }
+
+        private void AttachProjectConnectorEvents()
+        {
+            if (this.ProjectConnector == null)
+                return;
+
+            this.ProjectConnector.ProjectReloadRequest += this.ProjectConnector_ProjectReloadRequest;
+        }
+
+        private void DetachProjectConnectorEvents()
+        {
+            if (this.ProjectConnector == null)
+                return;
+
+            this.ProjectConnector.ProjectReloadRequest -= this.ProjectConnector_ProjectReloadRequest;
+        }
+
+        private void ProjectConnector_ProjectReloadRequest(object? sender, EventArgs e)
+        {
+            this.GetProjects();
         }
     }
 }

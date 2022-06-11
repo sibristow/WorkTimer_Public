@@ -9,12 +9,12 @@ namespace WorkTimer4.Connectors
     internal class TimesheetActivity
     {
         /// <summary>
-        /// Gets or sets the start time of the activity
+        /// Gets or sets the UTC start time of the activity
         /// </summary>
         public DateTimeOffset Start { get; set; }
 
         /// <summary>
-        /// Gets or sets the end time of the activity
+        /// Gets or sets the UTC end time of the activity
         /// </summary>
         public DateTimeOffset End { get; set; }
 

@@ -17,6 +17,9 @@ namespace WorkTimer4
         {
             base.OnStartup(e);
 
+            // fix date formatting
+            FrameworkElement.LanguageProperty.OverrideMetadata(typeof(FrameworkElement), new FrameworkPropertyMetadata(System.Windows.Markup.XmlLanguage.GetLanguage(System.Globalization.CultureInfo.CurrentCulture.IetfLanguageTag)));
+
             // load the connector plugins
             this.catalogue = this.LoadPlugins();
 
@@ -26,7 +29,7 @@ namespace WorkTimer4
             // create a new viewmodel for the notify icon
             this.vm = new NotifyIconWrapperViewModel(config);
 
-            // create the notifyicon (it's a resource declared in NotifyIconResources.xaml)
+            // create the notifyicon (it's a resource declared in Resources.xaml)
             this.notifyIcon = (Controls.NotifyIconWrapper)this.FindResource("TaskBarIcon");
 
             // hook up events and datacontext
@@ -34,11 +37,8 @@ namespace WorkTimer4
             this.notifyIcon.Exit += this.NotifyIcon_OnExit;
             this.notifyIcon.OpenSettings += this.NotifyIcon_OnOpenSettings;
             this.notifyIcon.ProjectSelected += this.NotifyIcon_OnProjectSelected;
-
-            this.vm.RefreshProjects();
-        }
-
-        
+            this.notifyIcon.ViewTimesheet += this.NotifyIcon_ViewTimesheet;
+        }       
 
         protected override void OnExit(ExitEventArgs e)
         {
@@ -67,7 +67,7 @@ namespace WorkTimer4
                 WindowStartupLocation = WindowStartupLocation.CenterScreen,
             };
 
-            var  result = settings.ShowDialog();
+            bool? result = settings.ShowDialog();
 
             if (result == true)
             {
@@ -84,6 +84,13 @@ namespace WorkTimer4
             this.vm.ProjectSelectedCommand.Execute(e);
         }
 
+        private void NotifyIcon_ViewTimesheet(object? sender, System.EventArgs e)
+        {
+            if (this.vm == null)
+                return;
+
+            this.vm.ViewTimesheetCommand.Execute(e);
+        }
 
         private Connectors.ConnectorCatalogue LoadPlugins()
         {
