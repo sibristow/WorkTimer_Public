@@ -7,7 +7,7 @@
                     xmlns:local="clr-namespace:WorkTimer4">
 
     <!-- the application's NotifyIcon - started from App.xaml.cs. Declares its own view model. -->
-    <controls:NotifyIconWrapper x:Key="TaskBarIcon" Projects="{Binding Projects, diag:PresentationTraceSources.TraceLevel=High}" ToolTipText="{Binding ToolTip}">
+    <controls:NotifyIconWrapper x:Key="TaskBarIcon" Projects="{Binding Projects}" ToolTipText="{Binding ToolTip}">
         <controls:NotifyIconWrapper.Style>
             <Style TargetType="controls:NotifyIconWrapper">
                 <Setter Property="IconSource" Value="./Assets/clock_blue.ico"/>

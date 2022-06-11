@@ -33,8 +33,6 @@ namespace WorkTimer4.Controls
            DependencyProperty.Register("Projects", typeof(ObservableCollection<ProjectGroup>), typeof(NotifyIconWrapper), new PropertyMetadata(null, Projects_Changed));
 
 
-     
-
         private static void IconSource_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var notifyIcon = ((NotifyIconWrapper)d)._notifyIcon;
@@ -68,8 +66,6 @@ namespace WorkTimer4.Controls
 
         }
 
-        
-
         private static void ToolTipText_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var notifyIcon = ((NotifyIconWrapper)d)._notifyIcon;
@@ -78,6 +74,8 @@ namespace WorkTimer4.Controls
 
             notifyIcon.Text = (string)e.NewValue;
         }
+
+
 
 
         /// <summary>
@@ -99,6 +97,11 @@ namespace WorkTimer4.Controls
         /// Event raised when a Project menu item is clicked
         /// </summary>
         public event EventHandler<ProjectSelectedEventArgs> ProjectSelected;
+
+        /// <summary>
+        /// Event raised when the View Timesheet menu item is clicked
+        /// </summary>
+        public event EventHandler<EventArgs> ViewTimesheet;
 
 
         /// <summary>
@@ -179,7 +182,7 @@ namespace WorkTimer4.Controls
                 Tag = FIXED_MENU_ITEM,
                 Image = Assets.WinFormsAssets.GetResourceImage("./Assets/cross.png")
             };
-            exitItem.Click += ExitItemOnClick;
+            exitItem.Click += this.ExitItemOnClick;
             contextMenu.Items.Add(exitItem);
 
             
@@ -188,7 +191,7 @@ namespace WorkTimer4.Controls
                 Tag = FIXED_MENU_ITEM,
                 Image = Assets.WinFormsAssets.GetResourceImage("./Assets/wrench.png")
             };
-            openItem.Click += OpenSettingsOnClick;
+            openItem.Click += this.OpenSettingsOnClick;
             contextMenu.Items.Add(openItem);
 
 
@@ -201,8 +204,20 @@ namespace WorkTimer4.Controls
                 Image = Assets.WinFormsAssets.GetResourceImage("./Assets/control_pause.png"),
                 Enabled = false
             };
-            pauseItem.Click += ProjectItemOnClick;
+            pauseItem.Click += this.ProjectItemOnClick;
             contextMenu.Items.Add(pauseItem);
+
+
+            contextMenu.Items.Add(new ToolStripSeparator());
+
+
+            var timesheetItem = new ToolStripMenuItem("View Timesheet")
+            {
+                Tag = FIXED_MENU_ITEM,
+                Image = Assets.WinFormsAssets.GetResourceImage("./Assets/time.png")
+            };
+            timesheetItem.Click += this.ViewTimesheetOnClick;
+            contextMenu.Items.Add(timesheetItem);
 
 
             return contextMenu;
@@ -216,27 +231,31 @@ namespace WorkTimer4.Controls
                 return;
             }
 
-            var menustrip = this._notifyIcon?.ContextMenuStrip;
-
-            if (menustrip == null)
+            // make sure on UI thread
+            App.Current.Dispatcher.Invoke(() =>
             {
-                menustrip = this.CreateDefaultMenu();
-            }           
+                var menustrip = this._notifyIcon?.ContextMenuStrip;
 
-            menustrip.Items.Add(new ToolStripSeparator());
-
-            foreach (ProjectGroup group in groups)
-            {
-                if (string.IsNullOrWhiteSpace(group.Name) || group.Name.Equals(Project.UNGROUPED))
+                if (menustrip == null)
                 {
-                    var ungrouped = this.AddUngroupedProjects(group);
-                    menustrip.Items.AddRange(ungrouped);
-                    continue;
+                    menustrip = this.CreateDefaultMenu();
                 }
 
-                var groupMenu = this.AddGroupProjects(group);
-                menustrip.Items.Add(groupMenu);
-            }
+                menustrip.Items.Add(new ToolStripSeparator());
+
+                foreach (ProjectGroup group in groups)
+                {
+                    if (string.IsNullOrWhiteSpace(group.Name) || group.Name.Equals(Project.UNGROUPED))
+                    {
+                        var ungrouped = this.AddUngroupedProjects(group);
+                        menustrip.Items.AddRange(ungrouped);
+                        continue;
+                    }
+
+                    var groupMenu = this.AddGroupProjects(group);
+                    menustrip.Items.Add(groupMenu);
+                }
+            });
         }
 
         private ToolStripMenuItem AddGroupProjects(ProjectGroup group)
@@ -278,21 +297,25 @@ namespace WorkTimer4.Controls
 
         private void ClearContextMenuProjects()
         {
-            var menustrip = this._notifyIcon?.ContextMenuStrip;
-            if (menustrip == null)
-                return;
-
-            for (var i = menustrip.Items.Count; i > 0; i--)
+            // make sure on UI thread
+            App.Current.Dispatcher.Invoke(() =>
             {
-                var item = menustrip.Items[i - 1];
+                var menustrip = this._notifyIcon?.ContextMenuStrip;
+                if (menustrip == null)
+                    return;
 
-                if (string.Equals(FIXED_MENU_ITEM, item.Tag?.ToString()))
+                for (var i = menustrip.Items.Count; i > 0; i--)
                 {
-                    continue;
-                }
+                    var item = menustrip.Items[i - 1];
 
-                menustrip.Items.RemoveAt(i - 1);
-            }
+                    if (string.Equals(FIXED_MENU_ITEM, item.Tag?.ToString()))
+                    {
+                        continue;
+                    }
+
+                    menustrip.Items.RemoveAt(i - 1);
+                }
+            });
         }
 
 
@@ -343,6 +366,11 @@ namespace WorkTimer4.Controls
 
             var projectArgs = new ProjectSelectedEventArgs(menuItem?.Project);
             this.ProjectSelected?.Invoke(sender, projectArgs);
+        }
+
+        private void ViewTimesheetOnClick(object? sender, EventArgs eventArgs)
+        {
+            this.ViewTimesheet?.Invoke(sender, eventArgs);
         }
     }
 }

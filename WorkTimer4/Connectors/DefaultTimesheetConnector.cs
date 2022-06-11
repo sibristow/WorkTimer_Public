@@ -38,6 +38,25 @@ namespace WorkTimer4.Connectors
             File.WriteAllText(this.DataFile, text);
         }
 
+        public override void ViewTimesheet(Activity? currentActivity)
+        {
+            // read recorded activities
+            var recorded = this.ReadFile();
+
+            // include the current activity (if there is one)
+            if (currentActivity != null)
+            {
+                currentActivity.End = DateTimeOffset.UtcNow;
+
+                recorded.Add(new TimesheetActivity(currentActivity));
+            }
+
+            var vm = new TimesheetView.TimesheetViewModel(recorded);
+            var window = new TimesheetView.TimesheetViewer() { DataContext = vm };
+            window.ShowDialog();
+        }
+
+
         private List<TimesheetActivity> ReadFile()
         {
             if (!File.Exists(this.DataFile))

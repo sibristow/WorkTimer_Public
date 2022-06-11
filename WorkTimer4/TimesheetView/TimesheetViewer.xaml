@@ -1,0 +1,70 @@
+﻿<Window x:Class="WorkTimer4.TimesheetView.TimesheetViewer"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WorkTimer4.TimesheetView"
+        mc:Ignorable="d"
+        ShowInTaskbar="True"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Normal"
+        WindowStyle="ToolWindow"
+        Title="Timesheet Viewer" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="32"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="From:" Margin="8" VerticalAlignment="Center"/>
+        <DatePicker Grid.Row="0" Grid.Column="1" Margin="8" SelectedDate="{Binding From}"/>
+
+        <TextBlock Grid.Row="0" Grid.Column="3" Text="To:" Margin="8" VerticalAlignment="Center"/>
+        <DatePicker Grid.Row="0" Grid.Column="4" Margin="8" SelectedDate="{Binding To}"/>
+        
+        <Border Grid.Row="1" Grid.ColumnSpan="6" Height="1" BorderThickness="1" BorderBrush="Gray"/>
+
+        <DataGrid Grid.Row="2" Grid.ColumnSpan="6" Margin="8" ItemsSource="{Binding TimesheetData}"
+                  IsReadOnly="True"
+                  AutoGenerateColumns="False"
+                  GridLinesVisibility="None"
+                  AlternatingRowBackground="WhiteSmoke"
+                  HeadersVisibility="Column"
+                  HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Auto">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat='dd MMMM yyyy'}" MinWidth="150" />
+                <DataGridTextColumn Header="Project" Binding="{Binding ProjectCode}" MinWidth="100"/>
+                <DataGridTextColumn Header="Activity" Binding="{Binding ActivityCode}"  MinWidth="100"/>
+                <DataGridTextColumn Header="Recorded Hours" Binding="{Binding Hours, StringFormat=F4}" MinWidth="100" />
+                <DataGridTextColumn Header="Quarter Hours" Binding="{Binding QuarterHours, StringFormat=F4}" MinWidth="100" />
+            </DataGrid.Columns>
+
+            <DataGrid.Resources>
+                <Style TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Setter Property="Margin" Value="8"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="{x:Static SystemColors.HighlightBrush}"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.Resources>
+        </DataGrid>
+        
+    </Grid>
+</Window>

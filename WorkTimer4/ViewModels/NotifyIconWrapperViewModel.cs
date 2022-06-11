@@ -32,6 +32,8 @@ namespace WorkTimer4.ViewModels
 
         public ICommand ProjectSelectedCommand { get; }
 
+        public ICommand ViewTimesheetCommand { get; }
+
 
         public NotifyIconWrapperViewModel(ApplicationConfig applicationConfig)
         {
@@ -40,15 +42,13 @@ namespace WorkTimer4.ViewModels
            
             this.NotifyIconExitCommand = new RelayCommand(this.Exit);
             this.ProjectSelectedCommand = new RelayCommand<object?>(this.ProjectSelected);
+            this.ViewTimesheetCommand = new RelayCommand(this.ViewTimesheet);
         }
 
         public void RefreshProjects(bool keepSelection = true)
         {
-            var g = new ProjectGroup("¦", System.Linq.Enumerable.Empty<Project>());
-            this.applicationConfig.Projects.Add(g);
-            this.applicationConfig.Projects.Remove(g);
-
-            this.OnPropertyChanged(nameof(this.Projects));
+            // reload the projects
+            this.applicationConfig.GetProjects();
 
             if (!keepSelection)
             {
@@ -89,7 +89,17 @@ namespace WorkTimer4.ViewModels
             // then shutdown the app
             Application.Current.Shutdown();
         }
-       
+
+        /// <summary>
+        /// Shows the timesheet viewer
+        /// </summary>
+        private void ViewTimesheet()
+        {
+            if (this.applicationConfig.TimesheetConnector != null)
+            {
+                this.applicationConfig.TimesheetConnector.ViewTimesheet(this.currentActivity);
+            }
+        }
 
         /// <summary>
         /// Starts a new activity

@@ -23,6 +23,8 @@ namespace WorkTimer4.API.Connectors
             return this.Name.GetHashCode();
         }
 
-        public abstract void RecordActivity(Activity activity);       
+        public abstract void RecordActivity(Activity activity);
+
+        public abstract void ViewTimesheet(Data.Activity? currentActivity);
     }
 }

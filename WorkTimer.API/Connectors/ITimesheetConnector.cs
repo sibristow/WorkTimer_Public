@@ -12,5 +12,13 @@
         /// </summary>
         /// <param name="activity"></param>
         void RecordActivity(Data.Activity activity);
+
+        /// <summary>
+        /// Displays the timesheet
+        /// </summary>
+        /// <param name="currentActivity">
+        /// the current activity if one is set
+        /// </param>
+        void ViewTimesheet(Data.Activity? currentActivity);
     }
 }
