@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Work Timer"
-#define MyAppVersion "4.0.0.0"
+#define MyAppVersion "4.2.0"
 #define MyAppExeName "WorkTimer4.exe"
 #define PublishPath "..\publish"
 

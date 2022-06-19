@@ -121,7 +121,7 @@ namespace WorkTimer4.ViewModels
         /// </summary>
         private void OnAddProject()
         {
-            var project = new Project() { Name = "New Project", Group = Project.UNGROUPED, Active = true };
+            var project = Project.CreateDefault();
 
             this.AddProjectToGroup(project);
 
@@ -199,19 +199,26 @@ namespace WorkTimer4.ViewModels
         /// </summary>
         private void OnApplySettings()
         {
-            // update the current app config
-            this.applicationConfig.ProjectConnector = this.SelectedProjectConnector;
-            this.applicationConfig.TimesheetConnector = this.SelectedTimesheetConnector;
+            try
+            {
+                // update the current app config
+                this.applicationConfig.ProjectConnector = this.SelectedProjectConnector;
+                this.applicationConfig.TimesheetConnector = this.SelectedTimesheetConnector;
 
-            // save the project list
-            var projects = this.ProjectList.SelectMany(pg => pg.Projects);
-            this.applicationConfig.ProjectConnector.WriteProjects(projects);            
+                // save the app config
+                ApplicationConfig.Save(this.applicationConfig);
 
-            // save the app config
-            ApplicationConfig.Save(this.applicationConfig);
-
-            // raise the event which will close the form
-            this.SettingsApplied?.Invoke(this, EventArgs.Empty);
+                // save the project list
+                var projects = this.ProjectList.SelectMany(pg => pg.Projects);
+                this.applicationConfig.ProjectConnector.WriteProjects(projects);
+                
+                // raise the event which will close the form
+                this.SettingsApplied?.Invoke(this, EventArgs.Empty);
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show("An error occurred applying the new settings.", AssemblyInfo.ProductName, MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         /// <summary>

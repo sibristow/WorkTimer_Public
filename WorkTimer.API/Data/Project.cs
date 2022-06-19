@@ -177,7 +177,7 @@ namespace WorkTimer4.API.Data
         {
             if (sourceProject == null)
             {
-                return new Project() { Name = "New Project" };
+                return Project.CreateDefault();
             }
 
             return new Project()
@@ -191,6 +191,17 @@ namespace WorkTimer4.API.Data
                 Icon = sourceProject.Icon,
                 ProjectCode = sourceProject.ProjectCode
             };
+        }
+
+        public static Project CreateDefault()
+        {
+            return new Project() 
+            { 
+                Name = "New Project",
+                Group = Project.UNGROUPED,
+                Colour = "#00000000", // transparent ARGB
+                Active = true
+            };           
         }
     }
 }
