@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>Assets\clock_blue.ico</ApplicationIcon>
     <Nullable>enable</Nullable>
     <AssemblyName>WorkTimer4</AssemblyName>
     <AssemblyTitle>Work Timer 4</AssemblyTitle>
-    <Version>0.4.0</Version>
+    <Version>4.2.0</Version>
     <Authors>Simon Bristow</Authors>
     <Company />
     <Product>Work Timer 4</Product>

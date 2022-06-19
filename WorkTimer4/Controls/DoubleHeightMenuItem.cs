@@ -24,7 +24,7 @@ namespace WorkTimer4.Controls
         {
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.ProjectText = project.Name;
-            this.CodeText = project.ProjectCode;
+            this.CodeText = string.Format("{0}  {1}", project.ProjectCode, project.ActivityCode);
             this.Text = this.ProjectText + "\n";
             this.CategoryText = project.Category;
             this.CategoryColour = Assets.WinFormsAssets.ColourFromCategory(project.Colour);
