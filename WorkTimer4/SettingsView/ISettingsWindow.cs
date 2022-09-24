@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WorkTimer4.ViewModels
+namespace WorkTimer4.SettingsView
 {
     internal interface ISettingsWindow
     {

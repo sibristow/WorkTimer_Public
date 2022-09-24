@@ -22,26 +22,10 @@ namespace WorkTimer4.Connectors
             this.DataFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "WorkTimer", "timesheet.json");
         }
 
-
-        public override void RecordActivity(Activity activity)
-        {
-            var tsActivity = new TimesheetActivity(activity);
-
-            // read the existing activities
-            var activityList = this.ReadFile();
-
-            // insert the activity in chronological order
-            this.InsertTimesheetActivity(activityList, tsActivity);
-
-            // save the updated list
-            var text = JsonSerializer.Serialize(activityList, API.Json.JsonSerialisation.SerialiserOptions);
-            File.WriteAllText(this.DataFile, text);
-        }
-
         public override void ViewTimesheet(Activity? currentActivity)
         {
             // read recorded activities
-            var recorded = this.ReadFile();
+            var recorded = this.ReadFile(this.currentRollingFile);
 
             // include the current activity (if there is one)
             if (currentActivity != null)
@@ -56,20 +40,35 @@ namespace WorkTimer4.Connectors
             window.ShowDialog();
         }
 
-
-        private List<TimesheetActivity> ReadFile()
+        protected override void OnRecordingActivity(Activity activity, string rolledFile)
         {
-            if (!File.Exists(this.DataFile))
+            var tsActivity = new TimesheetActivity(activity);
+
+            // read the existing activities
+            var activityList = this.ReadFile(rolledFile);
+
+            // insert the activity in chronological order
+            this.InsertTimesheetActivity(activityList, tsActivity);
+
+            // save the updated list
+            var text = JsonSerializer.Serialize(activityList, API.Json.JsonSerialisation.SerialiserOptions);
+            File.WriteAllText(rolledFile, text);
+        }
+
+
+        private List<TimesheetActivity> ReadFile(string? file)
+        {
+            if (file == null || !File.Exists(file))
             {
                 return new List<TimesheetActivity>();
             }
 
-            var text = File.ReadAllText(this.DataFile);
-            return JsonSerializer.Deserialize<List<TimesheetActivity>>(text, API.Json.JsonSerialisation.SerialiserOptions);
+            var text = File.ReadAllText(file);
+            return JsonSerializer.Deserialize<List<TimesheetActivity>>(text, API.Json.JsonSerialisation.SerialiserOptions) ?? new List<TimesheetActivity>();
         }
 
         private void InsertTimesheetActivity(List<TimesheetActivity> activityList, TimesheetActivity timesheetActivity)
-        {            
+        {
             for (var i = 0; i < activityList.Count; i++)
             {
                 var l = activityList[i];

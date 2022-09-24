@@ -2,9 +2,9 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Work Timer"
-#define MyAppVersion "4.2.0"
+#define MyAppVersion "4.3.1"
 #define MyAppExeName "WorkTimer4.exe"
-#define PublishPath "..\publish"
+#define PublishPath ".\publish"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.

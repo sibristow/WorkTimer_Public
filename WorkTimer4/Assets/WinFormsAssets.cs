@@ -10,7 +10,9 @@ namespace WorkTimer4.Assets
     {
         public static Icon GetApplicationIcon()
         {
+#pragma warning disable CS8603 // Possible null reference return.
             return Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location);
+#pragma warning restore CS8603 // Possible null reference return.
         }
 
         public static Icon GetResourceIcon(string? resourceUri)
@@ -36,11 +38,11 @@ namespace WorkTimer4.Assets
 
             var wpfResource = WPFAssets.GetImageResource(resourceUri);
             if (wpfResource == null)
-                return null;            
+                return null;
 
             var encoder = new PngBitmapEncoder();
             encoder.Frames.Add(BitmapFrame.Create((BitmapImage)wpfResource));
-            
+
             using (var stream = new MemoryStream())
             {
                 encoder.Save(stream);
@@ -67,7 +69,7 @@ namespace WorkTimer4.Assets
             {
                 return Color.Gray;
             }
-        }        
+        }
 
         internal static Image? FromEncodedImage(string? encodedImage)
         {

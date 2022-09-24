@@ -1,11 +1,11 @@
-﻿<Window x:Class="WorkTimer4.MainWindow"
+﻿<Window x:Class="WorkTimer4.SettingsView.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-        xmlns:local="clr-namespace:WorkTimer4"
-        xmlns:vm="clr-namespace:WorkTimer4.ViewModels"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:app="clr-namespace:WorkTimer4"
+        xmlns:vm="clr-namespace:WorkTimer4.SettingsView"
         xmlns:api="clr-namespace:WorkTimer4.API.Data;assembly=WorkTimer4.API"
         xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         xmlns:pt="http://propertytools.org/wpf"
@@ -42,12 +42,28 @@
         <SolidColorBrush x:Key="TabActiveBorderBrush" Color="{x:Static SystemColors.HighlightColor}"/>
         <SolidColorBrush x:Key="TabInactiveBorderBrush" Color="{x:Static SystemColors.MenuHighlightColor}"/>
 
-        <local:IconConverter x:Key="IconConverter"/>
+        <app:IconConverter x:Key="IconConverter"/>
 
         <Style x:Key="ColourPickerStyle" TargetType="{x:Type pt:ColorPicker}" BasedOn="{StaticResource DefaultColourComboBoxStyle}"/>
 
         <Style TargetType="GroupBox">
             <Setter Property="Margin" Value="8"/>
+        </Style>
+
+        <Style x:Key="PropertyGridStyle" TargetType="{x:Type pt:PropertyGrid}">
+            <Setter Property="Margin" Value="8,4"/>
+            <Setter Property="TabVisibility" Value="Collapsed"/>
+            <Setter Property="ShowReadOnlyProperties" Value="False"/>
+            <Setter Property="MinimumLabelWidth" Value="160"/>
+            <Setter Property="LabelWidthSharing" Value="SharedInGroup"/>
+            <Setter Property="CategoryControlType" Value="Template"/>
+            <Setter Property="CategoryHeaderTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <Rectangle Height="8" Margin="4"/>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
     </Window.Resources>
@@ -64,11 +80,11 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Background="{StaticResource TabBackgroundBrush}"/>
+        <Border Grid.Row="0" Grid.RowSpan="3" Background="{StaticResource TabBackgroundBrush}"/>
 
-        <TabControl x:Name="tabControl" Grid.Column="1" 
+        <TabControl x:Name="tabControl" Grid.Column="1"
                     BorderThickness="0"
-                    TabStripPlacement="Top" 
+                    TabStripPlacement="Top"
                     UseLayoutRounding="True" >
 
             <TabControl.Resources>
@@ -77,7 +93,7 @@
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="TabItem">
-                                <Border Name="Border"  Margin="0" BorderThickness="0,0,0,3" BorderBrush="{StaticResource TabBackgroundBrush}" Background="Transparent">
+                                <Border Name="Border"  Margin="0" BorderThickness="0,3,0,0" BorderBrush="{StaticResource TabBackgroundBrush}" Background="Transparent">
                                     <ContentPresenter x:Name="ContentSite" TextElement.FontWeight="Bold"
                                         VerticalAlignment="Center"
                                         HorizontalAlignment="Center"
@@ -87,6 +103,7 @@
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsSelected" Value="True">
                                         <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource TabActiveBorderBrush}" />
+                                        <Setter TargetName="Border" Property="Background" Value="{x:Static SystemColors.WindowBrush}" />
                                         <!--<Setter TargetName="ContentSite" Property="TextElement.Foreground" Value="{x:Static SystemColors.HighlightTextBrush}"/>-->
                                     </Trigger>
                                     <!--<Trigger Property="IsSelected" Value="False">
@@ -119,19 +136,25 @@
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Text="Connector" Style="{StaticResource SettingLabelStyle}"/>
-                        <ComboBox Grid.Column="1" Margin="8" 
+                        <ComboBox Grid.Column="1" Margin="8"
                                         DisplayMemberPath="Name"
-                                        SelectedValuePath="Name"                                      
-                                        SelectedItem="{Binding SelectedProjectConnector}"                                     
+                                        SelectedValuePath="Name"
+                                        SelectedItem="{Binding SelectedProjectConnector}"
                                         ItemsSource="{Binding ProjectConnectors}"/>
 
                         <TextBlock Grid.Row="1" Text="Properties" Style="{StaticResource SettingLabelStyle}" VerticalAlignment="Top"/>
-                        <pt:PropertyGrid Grid.Row="1" Grid.Column="1" Margin="8,4" SelectedObject="{Binding SelectedProjectConnector}" TabVisibility="Collapsed" ShowReadOnlyProperties="False" CategoryControlType="Template" >
-                            <pt:PropertyGrid.CategoryHeaderTemplate>
-                                <DataTemplate>
-                                    <Rectangle Height="8" Margin="4"/>
-                                </DataTemplate>
-                            </pt:PropertyGrid.CategoryHeaderTemplate>
+                        <pt:PropertyGrid Grid.Row="1" Grid.Column="1"
+                                         SelectedObject="{Binding SelectedProjectConnector}"
+                                         Style="{StaticResource PropertyGridStyle}">
+                            <pt:PropertyGrid.Resources>
+                                <Style TargetType="ComboBox">
+                                    <Setter Property="Margin" Value="0"/>
+                                </Style>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="Margin" Value="4"/>
+                                    <Setter Property="Padding" Value="2"/>
+                                </Style>
+                            </pt:PropertyGrid.Resources>
                         </pt:PropertyGrid>
                     </Grid>
                 </GroupBox>
@@ -155,9 +178,6 @@
 
                         <TreeView x:Name="treeView" Grid.Column="0" Grid.RowSpan="1" ItemsSource="{Binding ProjectList}" BorderThickness="0,0,1,0" Margin="4">
                             <TreeView.Resources>
-                                <HierarchicalDataTemplate DataType="{x:Type vm:ProjectGroup}" ItemsSource="{Binding Projects}">
-                                    <TextBlock Text="{Binding Name}" Margin="4" />
-                                </HierarchicalDataTemplate>
                                 <DataTemplate DataType="{x:Type api:Project}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
@@ -171,6 +191,10 @@
                                         <TextBlock Grid.Column="2" Text="{Binding Name}" Margin="8,4,8,4" />
                                     </Grid>
                                 </DataTemplate>
+                                <HierarchicalDataTemplate DataType="{x:Type vm:SettingsProjectGroup}" ItemsSource="{Binding Projects}">
+                                    <TextBlock Text="{Binding Name}" Margin="4" />
+                                </HierarchicalDataTemplate>
+
                             </TreeView.Resources>
                             <TreeView.ItemContainerStyle>
                                 <Style TargetType="TreeViewItem">
@@ -188,7 +212,7 @@
 
                         <ContentPresenter Grid.Column="1" Content="{Binding SelectedProject}">
                             <ContentPresenter.Resources>
-                                <DataTemplate DataType="{x:Type vm:ProjectGroup}">
+                                <DataTemplate DataType="{x:Type vm:SettingsProjectGroup}">
                                     <TextBlock Text="Select a Project item" Style="{StaticResource SettingLabelStyle}" VerticalAlignment="Top"/>
                                 </DataTemplate>
 
@@ -226,7 +250,7 @@
                                         <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Category}" Style="{StaticResource TextBoxStyle}"/>
 
                                         <TextBlock Grid.Row="5" Text="Colour" Style="{StaticResource SettingLabelStyle}"/>
-                                        <pt:ColorPicker Grid.Row="5" Grid.Column="1" SelectedColor="{Binding Colour}" Margin="4" Background="White" 
+                                        <pt:ColorPicker Grid.Row="5" Grid.Column="1" SelectedColor="{Binding Colour}" Margin="4" Background="White"
                                                         Style="{StaticResource ColourPickerStyle}">
                                         </pt:ColorPicker>
 
@@ -240,21 +264,21 @@
                                             </Grid.ColumnDefinitions>
 
                                             <Border Width="24" Height="24" BorderThickness="1" BorderBrush="{StaticResource ComboBox.Static.Border}"/>
-                                            <Image x:Name="projectIcon" 
-                                                       Source="{Binding Icon, Converter={StaticResource IconConverter}}" 
+                                            <Image x:Name="projectIcon"
+                                                   Source="{Binding Icon, Converter={StaticResource IconConverter}}"
                                                    Margin="4"
-                                                       UseLayoutRounding="True" 
-                                                       SnapsToDevicePixels="True" 
-                                                       RenderSize="16,16" 
-                                                       RenderOptions.BitmapScalingMode="HighQuality"/>
-                                            
-                                            
+                                                   UseLayoutRounding="True"
+                                                   SnapsToDevicePixels="True"
+                                                   RenderSize="16,16"
+                                                   RenderOptions.BitmapScalingMode="HighQuality"/>
+
+
                                             <Button Grid.Column="2" Command="{Binding DataContext.OpenIconCommand, ElementName=treeView}" CommandParameter="{Binding}" Background="Transparent" Margin="0,0,4,0">
-                                                <Image Source="./Assets/folder_image.png" ToolTip="Select Icon" Width="16" Height="16"/>
+                                                <Image Source="../Assets/folder_image.png" ToolTip="Select Icon" Width="16" Height="16"/>
                                             </Button>
 
                                             <Button Grid.Column="3" Command="{Binding DataContext.ClearIconCommand, ElementName=treeView}" CommandParameter="{Binding}" Background="Transparent">
-                                                <Image Source="./Assets/cross.png" ToolTip="Remove Icon" Width="16" Height="16"/>
+                                                <Image Source="../Assets/cross.png" ToolTip="Remove Icon" Width="16" Height="16"/>
                                             </Button>
                                         </Grid>
 
@@ -292,19 +316,26 @@
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Text="Connector" Style="{StaticResource SettingLabelStyle}"/>
-                        <ComboBox Grid.Column="1" Margin="8" 
+                        <ComboBox Grid.Column="1" Margin="8"
                                       DisplayMemberPath="Name"
-                                      SelectedValuePath="Name"                                      
-                                      SelectedItem="{Binding SelectedTimesheetConnector}"                                     
+                                      SelectedValuePath="Name"
+                                      SelectedItem="{Binding SelectedTimesheetConnector}"
                                       ItemsSource="{Binding TimesheetConnectors}"/>
 
                         <TextBlock Grid.Row="1" Text="Properties" Style="{StaticResource SettingLabelStyle}" VerticalAlignment="Top"/>
-                        <pt:PropertyGrid Grid.Row="1" Grid.Column="1" Margin="8,4" SelectedObject="{Binding SelectedTimesheetConnector}" TabVisibility="Collapsed" ShowReadOnlyProperties="False" CategoryControlType="Template" >
-                            <pt:PropertyGrid.CategoryHeaderTemplate>
-                                <DataTemplate>
-                                    <Border BorderThickness="0" Margin="4"/>
-                                </DataTemplate>
-                            </pt:PropertyGrid.CategoryHeaderTemplate>
+                        <pt:PropertyGrid Grid.Row="1" Grid.Column="1"
+                                         SelectedObject="{Binding SelectedTimesheetConnector}"
+                                         Style="{StaticResource PropertyGridStyle}">
+                            <pt:PropertyGrid.Resources>
+                                <Style TargetType="ComboBox">
+                                    <Setter Property="Margin" Value="4"/>
+                                    <Setter Property="Padding" Value="4"/>
+                                </Style>
+                                <Style TargetType="{x:Type pt:TextBoxEx}">
+                                    <Setter Property="Margin" Value="4"/>
+                                    <Setter Property="Padding" Value="4"/>
+                                </Style>
+                            </pt:PropertyGrid.Resources>
                         </pt:PropertyGrid>
                     </Grid>
                 </GroupBox>
@@ -323,15 +354,19 @@
                     </Grid.RowDefinitions>
 
                     <TextBlock Text="Product" FontWeight="Bold"/>
-                    <TextBlock Grid.Column="1" Text="{x:Static local:AssemblyInfo.ProductName}"/>
+                    <TextBlock Grid.Column="1">
+                        <Image Source="../Assets/clock.png" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Stretch="None" Margin="0,0,8,0" />
+                        <Run Text="{x:Static app:AssemblyInfo.ProductName}" BaselineAlignment="Center" FontWeight="SemiBold" />
+                    </TextBlock>
 
                     <TextBlock Grid.Row="1" Text="Version" FontWeight="Bold"/>
-                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Static local:AssemblyInfo.ProductVersion}"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Static app:AssemblyInfo.ProductVersion}"/>
 
                     <TextBlock Grid.Row="2" Text="Components" FontWeight="Bold"/>
                     <TextBlock Grid.Row="2" Grid.Column="1">
                         PropertyTools - <Hyperlink NavigateUri="http://github.com/PropertyTools/PropertyTools/blob/develop/LICENSE">MIT license</Hyperlink>
                     </TextBlock>
+
                 </Grid>
             </TabItem>
 
@@ -342,7 +377,6 @@
             <Button Content="OK" Style="{StaticResource ButtonStyle}" IsDefault="True" Command="{Binding ApplySettingsCommand}"/>
             <Button Content="Cancel" Style="{StaticResource ButtonStyle}" IsCancel="True"/>
         </StackPanel>
-
     </Grid>
 
 

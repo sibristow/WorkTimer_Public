@@ -9,28 +9,31 @@ namespace WorkTimer4.Controls
     {
         private const int CategoryWidth = 8;
 
-        public string ProjectText { get; set; }
-        
-        public string CodeText { get; set; }
+        public string? ProjectText { get; set; }
+
+        public string? CodeText { get; set; }
 
         public Color CategoryColour { get; set; }
 
-        public string CategoryText { get; set; }
-        
+        public string? CategoryText { get; set; }
+
         internal Project Project { get; }
 
 
-        public DoubleHeightMenuItem(Project project)
+        public DoubleHeightMenuItem(Project? project)
         {
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
+
+#pragma warning disable CS8601 // Possible null reference assignment.
             this.ProjectText = project.Name;
             this.CodeText = string.Format("{0}  {1}", project.ProjectCode, project.ActivityCode);
             this.Text = this.ProjectText + "\n";
             this.CategoryText = project.Category;
             this.CategoryColour = Assets.WinFormsAssets.ColourFromCategory(project.Colour);
             this.Image = Assets.WinFormsAssets.FromEncodedImage(project.Icon);
+#pragma warning restore CS8601 // Possible null reference assignment.
         }
-       
+
 
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -53,7 +56,7 @@ namespace WorkTimer4.Controls
             }
 
             base.OnPaint(e);
-  
+
 
             e.Graphics.DrawString(this.CodeText, codeFont, SystemBrushes.MenuText, codePoint);
 

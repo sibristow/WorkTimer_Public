@@ -5,12 +5,12 @@ using System.Linq;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using WorkTimer4.API.Data;
 
-namespace WorkTimer4.ViewModels
+namespace WorkTimer4.SettingsView
 {
     /// <summary>
     /// Represents a group of projects in the UI
     /// </summary>
-    internal class ProjectGroup : ObservableObject
+    internal class SettingsProjectGroup : ObservableObject
     {
         private string name;
 
@@ -36,17 +36,22 @@ namespace WorkTimer4.ViewModels
         public ObservableCollection<Project> Projects { get; }
 
 
-        public ProjectGroup(string name, IEnumerable<Project> orderedEnumerables)
+        public SettingsProjectGroup(string name, IEnumerable<Project> orderedEnumerables)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
                 throw new ArgumentException($"'{nameof(name)}' cannot be null or whitespace", nameof(name));
             }
 
-            this.Name = name;
+            this.name = name;
             this.Projects = new ObservableCollection<Project>(orderedEnumerables);
         }
 
+
+        public SettingsProjectGroup(ProjectGroup projectGroup)
+            : this (projectGroup.Name, projectGroup.Projects.Select(p => Project.Copy(p)))
+        {
+        }
 
 
         public override string? ToString()
@@ -56,10 +61,10 @@ namespace WorkTimer4.ViewModels
 
         public override bool Equals(object? obj)
         {
-            return this.Equals(obj as ProjectGroup);
+            return this.Equals(obj as SettingsProjectGroup);
         }
 
-        public bool Equals(ProjectGroup? other)
+        public bool Equals(SettingsProjectGroup? other)
         {
             return other != null &&
                    EqualityComparer<string>.Default.Equals(this.Name, other.Name);
@@ -70,27 +75,28 @@ namespace WorkTimer4.ViewModels
             return HashCode.Combine(this.Name);
         }
 
-        public static bool operator ==(ProjectGroup? left, ProjectGroup? right)
+        public static bool operator ==(SettingsProjectGroup? left, SettingsProjectGroup? right)
         {
-            return EqualityComparer<ProjectGroup>.Default.Equals(left, right);
+            return EqualityComparer<SettingsProjectGroup>.Default.Equals(left, right);
         }
 
-        public static bool operator !=(ProjectGroup? left, ProjectGroup? right)
+        public static bool operator !=(SettingsProjectGroup? left, SettingsProjectGroup? right)
         {
             return !(left == right);
         }
 
-
-        public static ProjectGroup Copy(ProjectGroup sourceProjectGroup)
+        public static implicit operator ProjectGroup(SettingsProjectGroup settingsProjectGroup)
         {
-            if (sourceProjectGroup == null)
-                return new ProjectGroup("New Group", Enumerable.Empty<Project>());
+            return new ProjectGroup()
+            {
+                Name = settingsProjectGroup.Name,
+                Projects = settingsProjectGroup.Projects.Select(p => Project.Copy(p)).ToList()
+            };
+        }
 
-            var newItems = sourceProjectGroup.Projects.Select(p => Project.Copy(p));
-
-            var group = new ProjectGroup(sourceProjectGroup.Name, newItems);
-
-            return group;
+        public static implicit operator SettingsProjectGroup(ProjectGroup projectGroup)
+        {
+            return new SettingsProjectGroup(projectGroup);
         }
     }
 }

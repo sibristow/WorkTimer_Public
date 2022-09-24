@@ -31,9 +31,26 @@ namespace WorkTimer4.Connectors
             var configuration = new ContainerConfiguration()
                 .WithAssembly(thisAssembly);
 
+            // include plugins folder
+            configuration = WithPlugins(configuration);
+
+            // build the catalogue
+            using (var container = configuration.CreateContainer())
+            {
+                container.SatisfyImports(this);
+            }
+        }
+
+        private static ContainerConfiguration WithPlugins(ContainerConfiguration configuration)
+        {
             // now look in the Plugins folder
-            var executableLocation = Assembly.GetEntryAssembly().Location;
+            var executableLocation = Assembly.GetEntryAssembly()?.Location;
             var executablePath = Path.GetDirectoryName(executableLocation);
+
+            if (string.IsNullOrEmpty(executablePath))
+            {
+                throw new DirectoryNotFoundException("Cannot determine location of plugins folder");
+            }
 
             var pluginPath = Path.Combine(executablePath, "Plugins");
 
@@ -47,11 +64,7 @@ namespace WorkTimer4.Connectors
                 configuration = configuration.WithAssemblies(assemblies);
             }
 
-            // build the catalogue
-            using (var container = configuration.CreateContainer())
-            {
-                container.SatisfyImports(this);
-            }    
+            return configuration;
         }
     }
 }

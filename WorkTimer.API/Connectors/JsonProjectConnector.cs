@@ -13,18 +13,38 @@ namespace WorkTimer4.API.Connectors
     /// <typeparam name="T">Type which JSON is serialised from and deserialised to</typeparam>
     public abstract class JsonProjectConnector<T> : JsonProviderBase, IProjectConnector where T : class
     {
-        FileSystemWatcher watcher;
+        protected string? dataFile;
+        private FileSystemWatcher? watcher;
         private bool reloadOnChanges;
 
-        public event EventHandler<EventArgs> ProjectReloadRequest;
+        /// <inheritdoc/>
+        public event EventHandler<EventArgs>? ProjectReloadRequest;
 
+        /// <inheritdoc/>
         public abstract string Name { get; }
 
+        /// <summary>
+        /// Gets or sets the data file where project information is serialised to
+        /// </summary>
         [Category("Projects")]
         [DisplayName("Data File")]
         [Description("File where project data is read from and saved to")]
-        public string DataFile { get; set; }
+        public string? DataFile
+        {
+            get
+            {
+                return dataFile;
+            }
+            set
+            {
+                dataFile = value;
+                this.DataFilePathChanged();
+            }
+        }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the data file should be reloaded when external changes are detected
+        /// </summary>
         [Category("Projects")]
         [DisplayName("Reload")]
         [Description("Reload file when external changes are detected")]
@@ -52,29 +72,23 @@ namespace WorkTimer4.API.Connectors
             return this.Name.GetHashCode();
         }
 
-
-        public IEnumerable<Project> GetProjects()
-        {           
+        /// <inheritdoc/>
+        public IEnumerable<ProjectGroup> GetProjects()
+        {
             if (!File.Exists(this.DataFile))
             {
-                return new List<Project>();
+                return new List<ProjectGroup>();
             }
 
             var text = File.ReadAllText(this.DataFile);
 
-            var projectList = JsonSerializer.Deserialize<T>(text, API.Json.JsonSerialisation.SerialiserOptions);
-
-            if (projectList == null)
-            {
-                throw new JsonException("Could not read the data file.");
-            }
-
-            return this.FromDeserialised(projectList);
+            return this.Deserialise(text);
         }
 
-        public void WriteProjects(IEnumerable<Project> projects)
+        /// <inheritdoc/>
+        public void WriteProjects(IEnumerable<ProjectGroup> projectGroups)
         {
-            var projectsData = this.ForSerialisation(projects);           
+            var projectsData = this.Serialise(projectGroups);
 
             if (this.ReloadOnChanges && this.watcher != null)
             {
@@ -82,8 +96,21 @@ namespace WorkTimer4.API.Connectors
                 this.watcher.EnableRaisingEvents = false;
             }
 
+            // serialise the project data
+            var text = JsonSerializer.Serialize(projectsData, Json.JsonSerialisation.SerialiserOptions);
+
+            // create folder if not exists
+            var folderPath = Path.GetDirectoryName(this.DataFile);
+
+            if (string.IsNullOrWhiteSpace(this.DataFile) || string.IsNullOrWhiteSpace(folderPath))
+                throw new ConnectorException("Project connector data file is not specified");
+
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
             // write the project data
-            var text = JsonSerializer.Serialize(projectsData, API.Json.JsonSerialisation.SerialiserOptions);
             File.WriteAllText(this.DataFile, text);
 
             if (this.ReloadOnChanges && this.watcher != null)
@@ -93,9 +120,37 @@ namespace WorkTimer4.API.Connectors
             }
         }
 
-        protected abstract T ForSerialisation(IEnumerable<Project> projects);
+        /// <summary>
+        /// Returns an instance of <typeparamref name="T"/> for serialisation which contains the project information
+        /// </summary>
+        /// <param name="projects"></param>
+        /// <returns></returns>
+        protected abstract T Serialise(IEnumerable<ProjectGroup> projectGroups);
 
-        protected abstract IEnumerable<Project> FromDeserialised(T deserialised);
+        /// <summary>
+        /// Returns the deserialised project information
+        /// </summary>
+        /// <param name="json">json text</param>
+        /// <returns></returns>
+        protected abstract IEnumerable<ProjectGroup> Deserialise(string json);
+
+        /// <summary>
+        /// The selected
+        /// </summary>
+        private void DataFilePathChanged()
+        {
+            if (File.Exists(this.DataFile))
+            {
+                // the file exists, load the projects from the file
+                this.ProjectReloadRequest?.Invoke(this, EventArgs.Empty);
+            }
+
+            // disable the file watcher on the old data file
+            this.DisableWatcher();
+
+            if (this.ReloadOnChanges)
+                this.EnableWatcher();
+        }
 
         /// <summary>
         /// Called when the <see cref="ReloadOnChanges"/> property is changed
@@ -116,6 +171,9 @@ namespace WorkTimer4.API.Connectors
         /// </summary>
         private void EnableWatcher()
         {
+            if (string.IsNullOrWhiteSpace(this.DataFile) || !Directory.Exists(this.DataFile))
+                return;
+
             if (this.watcher == null)
             {
                 this.watcher = new FileSystemWatcher()
@@ -124,7 +182,7 @@ namespace WorkTimer4.API.Connectors
                 };
             }
 
-            this.watcher.Path = Path.GetDirectoryName(this.DataFile);
+            this.watcher.Path = Path.GetDirectoryName(this.DataFile) ?? string.Empty;
             this.watcher.Filter = Path.GetFileName(this.DataFile);
             this.watcher.NotifyFilter = NotifyFilters.LastWrite;
             this.watcher.Changed += this.Watcher_Changed;

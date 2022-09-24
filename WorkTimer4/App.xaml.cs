@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using WorkTimer4.SettingsView;
 using WorkTimer4.ViewModels;
 
 namespace WorkTimer4
@@ -8,7 +9,7 @@ namespace WorkTimer4
     /// </summary>
     public partial class App : Application
     {
-        private Connectors.ConnectorCatalogue catalogue;
+        private Connectors.ConnectorCatalogue? catalogue;
         private ApplicationConfig? config;
         private Controls.NotifyIconWrapper? notifyIcon;
         private NotifyIconWrapperViewModel? vm;
@@ -25,7 +26,7 @@ namespace WorkTimer4
 
             // load the app configuration
             this.config = ApplicationConfig.Open();
-            
+
             // create a new viewmodel for the notify icon
             this.vm = new NotifyIconWrapperViewModel(config);
 
@@ -38,7 +39,7 @@ namespace WorkTimer4
             this.notifyIcon.OpenSettings += this.NotifyIcon_OnOpenSettings;
             this.notifyIcon.ProjectSelected += this.NotifyIcon_OnProjectSelected;
             this.notifyIcon.ViewTimesheet += this.NotifyIcon_ViewTimesheet;
-        }       
+        }
 
         protected override void OnExit(ExitEventArgs e)
         {
@@ -61,15 +62,15 @@ namespace WorkTimer4
 
         private void NotifyIcon_OnOpenSettings(object? sender, System.EventArgs e)
         {
-            var settings = new MainWindow()
+            var settings = new SettingsWindow()
             {
-                DataContext = new MainWindowViewModel(this.config, this.catalogue),
+                DataContext = new SettingsViewModel(this.config, this.catalogue),
                 WindowStartupLocation = WindowStartupLocation.CenterScreen,
             };
 
             bool? result = settings.ShowDialog();
 
-            if (result == true)
+            if (result == true && this.vm != null)
             {
                 // reload projects
                 this.vm.RefreshProjects();

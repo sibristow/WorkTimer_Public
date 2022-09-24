@@ -8,7 +8,6 @@ using System.Windows;
 using System.Windows.Forms;
 using WorkTimer4.API.Data;
 using WorkTimer4.Events;
-using WorkTimer4.ViewModels;
 
 namespace WorkTimer4.Controls
 {
@@ -86,22 +85,22 @@ namespace WorkTimer4.Controls
         /// <summary>
         /// Event raised when the Settings menu item is clicked
         /// </summary>
-        public event EventHandler<EventArgs> OpenSettings;
+        public event EventHandler<EventArgs>? OpenSettings;
 
         /// <summary>
         /// Event raised when the Exit menu item is clicked
         /// </summary>
-        public event EventHandler<EventArgs> Exit;
+        public event EventHandler<EventArgs>? Exit;
 
         /// <summary>
         /// Event raised when a Project menu item is clicked
         /// </summary>
-        public event EventHandler<ProjectSelectedEventArgs> ProjectSelected;
+        public event EventHandler<ProjectSelectedEventArgs>? ProjectSelected;
 
         /// <summary>
         /// Event raised when the View Timesheet menu item is clicked
         /// </summary>
-        public event EventHandler<EventArgs> ViewTimesheet;
+        public event EventHandler<EventArgs>? ViewTimesheet;
 
 
         /// <summary>
@@ -145,8 +144,8 @@ namespace WorkTimer4.Controls
                 ContextMenuStrip = this.CreateDefaultMenu()
             };
 
-            this._notifyIcon.DoubleClick += OpenSettingsOnClick;           
-        }        
+            this._notifyIcon.DoubleClick += OpenSettingsOnClick;
+        }
 
         public void Dispose()
         {
@@ -185,7 +184,7 @@ namespace WorkTimer4.Controls
             exitItem.Click += this.ExitItemOnClick;
             contextMenu.Items.Add(exitItem);
 
-            
+
             var openItem = new ToolStripMenuItem("Settings")
             {
                 Tag = FIXED_MENU_ITEM,
@@ -359,10 +358,13 @@ namespace WorkTimer4.Controls
         /// <param name="sender"></param>
         /// <param name="eventArgs"></param>
         private void ProjectItemOnClick(object? sender, EventArgs eventArgs)
-        {           
+        {
             var menuItem = sender as DoubleHeightMenuItem;
 
-            this._notifyIcon.ContextMenuStrip.Items[2].Enabled = menuItem != null;
+            if (this._notifyIcon != null)
+            {
+                this._notifyIcon.ContextMenuStrip.Items[2].Enabled = menuItem != null;
+            }
 
             var projectArgs = new ProjectSelectedEventArgs(menuItem?.Project);
             this.ProjectSelected?.Invoke(sender, projectArgs);

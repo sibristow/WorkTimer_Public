@@ -19,15 +19,15 @@ namespace WorkTimer4.API.Connectors
         string Name { get; }
 
         /// <summary>
-        /// Gets the list of projects from the connector's source
+        /// Gets the list of project groups from the connector's source
         /// </summary>
         /// <returns></returns>
-        IEnumerable<Data.Project> GetProjects();
+        IEnumerable<Data.ProjectGroup> GetProjects();
 
         /// <summary>
         /// Writes the list of projects back to the connector's source
         /// </summary>
         /// <param name="projects"></param>
-        void WriteProjects(IEnumerable<Data.Project> projects);       
+        void WriteProjects(IEnumerable<Data.ProjectGroup> projectGroups);       
     }
 }
