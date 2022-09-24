@@ -6,13 +6,13 @@ namespace WorkTimer4.API.Data
     public sealed class Project : ViewModelBase, IEquatable<Project>
     {
         public const string UNGROUPED = "Ungrouped";
-        private string projectCode;
-        private string activityCode;
-        private string name;
-        private string category;
-        private string group;
-        private string colour;
-        private string icon;
+        private string? projectCode;
+        private string? activityCode;
+        private string? name;
+        private string? category;
+        private string? group;
+        private string? colour;
+        private string? icon;
         private bool active;
 
 
@@ -25,7 +25,7 @@ namespace WorkTimer4.API.Data
         /// <summary>
         /// Gets or sets the project code
         /// </summary>
-        public string ProjectCode
+        public string? ProjectCode
         {
             get
             {
@@ -40,7 +40,7 @@ namespace WorkTimer4.API.Data
         /// <summary>
         /// Gets or sets the project activity code
         /// </summary>
-        public string ActivityCode
+        public string? ActivityCode
         {
             get
             {
@@ -55,7 +55,7 @@ namespace WorkTimer4.API.Data
         /// <summary>
         /// Gets or sets the project name
         /// </summary>
-        public string Name
+        public string? Name
         {
             get
             {
@@ -70,7 +70,7 @@ namespace WorkTimer4.API.Data
         /// <summary>
         /// Gets or sets the project category
         /// </summary>
-        public string Category
+        public string? Category
         {
             get
             {
@@ -85,7 +85,7 @@ namespace WorkTimer4.API.Data
         /// <summary>
         /// Gets or sets the project group
         /// </summary>
-        public string Group
+        public string? Group
         {
             get
             {
@@ -100,7 +100,7 @@ namespace WorkTimer4.API.Data
         /// <summary>
         /// Gets or sets a hex code for the project colour
         /// </summary>
-        public string Colour
+        public string? Colour
         {
             get
             {
@@ -115,7 +115,7 @@ namespace WorkTimer4.API.Data
         /// <summary>
         /// Gets or sets a Base-64 encoded image for the project icon
         /// </summary>
-        public string Icon
+        public string? Icon
         {
             get
             {
@@ -143,14 +143,17 @@ namespace WorkTimer4.API.Data
         }
 
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            return this.Equals(obj as Project);
+            if (obj == null || obj is not Project proj)
+                return false;
+
+            return this.Equals(proj);
         }
 
-        public bool Equals(Project other)
+        public bool Equals(Project? other)
         {
-            return other != null && Guid.Equals(this.Identifier, other.Identifier);
+            return (other != null) && Guid.Equals(this.Identifier, other.Identifier);
         }
 
         public override int GetHashCode()
@@ -163,12 +166,12 @@ namespace WorkTimer4.API.Data
             return $"{this.Name} ({this.ProjectCode} / {this.ActivityCode})";
         }
 
-        public static bool operator ==(Project left, Project right)
+        public static bool operator ==(Project? left, Project? right)
         {
             return EqualityComparer<Project>.Default.Equals(left, right);
         }
 
-        public static bool operator !=(Project left, Project right)
+        public static bool operator !=(Project? left, Project? right)
         {
             return !(left == right);
         }
@@ -195,13 +198,13 @@ namespace WorkTimer4.API.Data
 
         public static Project CreateDefault()
         {
-            return new Project() 
-            { 
+            return new Project()
+            {
                 Name = "New Project",
                 Group = Project.UNGROUPED,
                 Colour = "#00000000", // transparent ARGB
                 Active = true
-            };           
+            };
         }
     }
 }

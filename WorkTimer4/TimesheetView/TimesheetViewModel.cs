@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using WorkTimer4.API.Data;
 using WorkTimer4.Connectors;
 
 namespace WorkTimer4.TimesheetView
@@ -12,22 +13,41 @@ namespace WorkTimer4.TimesheetView
         private DateTime to;
         private DateTimeOffset fromFilter;
         private DateTimeOffset toFilter;
-        private IEnumerable<AggregatedTimesheetEntry> timesheetData;
+
+        private IEnumerable<AggregatedTimesheetEntry>? dateTimesheetData;
+        private IEnumerable<DateTimeOffset>? dateAggregatedDays;
+
         private readonly List<TimesheetActivity> recorded;
 
         /// <summary>
-        /// Gets the aggregated timesheet data
+        /// Gets or sets the aggregated timesheet data
         /// </summary>
-        public IEnumerable<AggregatedTimesheetEntry> TimesheetData
+        public IEnumerable<AggregatedTimesheetEntry>? AggregatedTimesheetData
         {
             get
             {
-                return timesheetData;
+                return this.dateTimesheetData;
             }
-            private set
+            set
             {
-                timesheetData = value;
-                this.OnPropertyChanged(nameof(this.TimesheetData));
+                this.dateTimesheetData = value;
+                this.OnPropertyChanged(nameof(this.AggregatedTimesheetData));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the list of dates to display
+        /// </summary>
+        public IEnumerable<DateTimeOffset>? AggregatedDays
+        {
+            get
+            {
+                return this.dateAggregatedDays;
+            }
+            set
+            {
+                this.dateAggregatedDays = value;
+                this.OnPropertyChanged(nameof(this.AggregatedDays));
             }
         }
 
@@ -52,8 +72,7 @@ namespace WorkTimer4.TimesheetView
                 this.OnPropertyChanged(nameof(this.From));
 
                 // refresh the data
-                this.TimesheetData = this.AggregateData(this.recorded);
-
+                this.AggregateData(this.recorded);
             }
         }
 
@@ -76,9 +95,9 @@ namespace WorkTimer4.TimesheetView
                 this.toFilter = new DateTimeOffset(this.to.Year, this.to.Month, this.to.Day, 23, 59, 59, 999, TimeSpan.FromHours(0));
 
                 this.OnPropertyChanged(nameof(this.To));
-                
+
                 // refresh the data
-                this.TimesheetData = this.AggregateData(this.recorded);
+                this.AggregateData(this.recorded);
             }
         }
 
@@ -86,94 +105,107 @@ namespace WorkTimer4.TimesheetView
         public TimesheetViewModel(List<TimesheetActivity> recorded)
         {
             this.To = DateTime.Today;
-            this.From = this.GetPreviousMonday(this.To);
+            this.From = this.To.GetPreviousMonday();
             this.recorded = recorded;
 
-            this.TimesheetData = this.AggregateData(recorded);
+            this.AggregateData(recorded);
         }
 
         /// <summary>
-        /// Gets the date of the previous Monday
+        /// Aggregates the recorded activity data
         /// </summary>
-        /// <param name="fromDate">date to get previous Monday from</param>
-        /// <returns></returns>
-        private DateTime GetPreviousMonday(DateTime fromDate)
+        /// <param name="recorded"></param>
+        private void AggregateData(List<TimesheetActivity> recorded)
         {
-            var daysBack = (int)fromDate.DayOfWeek;
-            if (daysBack == (int)DayOfWeek.Sunday)
-                daysBack = 7;
-
-            daysBack -= (int)DayOfWeek.Monday;
-            daysBack *= -1;
-
-            return fromDate.AddDays(daysBack);
-        }
-
-
-
-        private IEnumerable<AggregatedTimesheetEntry> AggregateData(List<TimesheetActivity> recorded)
-        {
-            if (recorded == null)
-                return Enumerable.Empty<AggregatedTimesheetEntry>();
-
-            var aggregated = new HashSet<AggregatedTimesheetEntry>();
-
-            foreach (var ts in recorded)
+            if (recorded == null || !recorded.Any())
             {
-                if (!this.IsInFilter(ts))
-                {
-                    // outside the filtered range
-                    continue;
-                }
-
-                if (ts.Start.Date == ts.End.Date)
-                {
-                    this.AddActivity(aggregated, ts);
-                    continue;
-                }
-
-                // split activity into separate days
-
-
-
-            }
-
-            return aggregated.OrderBy(a => a.Date)
-                .ThenBy(a => a.ProjectCode)
-                .ThenBy(a => a.ActivityCode)
-                .ToList();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="aggregated"></param>
-        /// <param name="ts"></param>
-        private void AddActivity(HashSet<AggregatedTimesheetEntry> aggregated, TimesheetActivity ts)
-        {
-            var ag = new AggregatedTimesheetEntry(ts);
-
-            // do we have the date/project/activity combo?
-            aggregated.TryGetValue(ag, out var v);
-
-            if (v != null)
-            {
-                v.Hours += ag.Hours;
+                this.dateTimesheetData = Enumerable.Empty<AggregatedTimesheetEntry>();
+                this.dateAggregatedDays = Enumerable.Empty<DateTimeOffset>();
                 return;
             }
 
-            // new date/project/activity combo
-            aggregated.Add(ag);
+            var dateAggregation = new HashSet<AggregatedTimesheetEntry>();
+            var dateList = new HashSet<DateTimeOffset>();
+
+            foreach (var ts in recorded)
+            {
+                this.AddRecordedActivity(dateAggregation, dateList, ts);
+            }
+
+            this.AggregatedTimesheetData = dateAggregation;
+            this.AggregatedDays = dateList;
         }
 
         /// <summary>
-        /// Returns a value indicating whether the activity start date falls within the filtered date range
+        /// Adds the recorded activity to the aggregated data
         /// </summary>
-        /// <param name="timesheetActivity"></param>
-        /// <returns></returns>
-        private bool IsInFilter(TimesheetActivity timesheetActivity)
+        /// <param name="dateAggregation"></param>
+        /// <param name="dateList"></param>
+        /// <param name="activity"></param>
+        private void AddRecordedActivity(HashSet<AggregatedTimesheetEntry> dateAggregation, HashSet<DateTimeOffset> dateList, TimesheetActivity activity)
         {
-            return timesheetActivity.Start >= this.fromFilter && timesheetActivity.Start <= this.toFilter;
+            DateTimeOffset hoursFrom = activity.Start;
+
+            while (hoursFrom <= activity.End)
+            {
+                // determine the end of the current day
+                var endOfCurrentDay = hoursFrom.ToEndOfDay();
+
+                // create a new datetime which is the min of the day or the activity end
+                var hoursTo = new DateTimeOffset(Math.Min(activity.End.Ticks, endOfCurrentDay.Ticks), hoursFrom.Offset);
+
+                // add the activity hours to the aggregation if it falls within the filter
+                this.AggregateIfFiltered(dateAggregation, dateList, activity, hoursFrom, hoursTo);
+
+                // advance the from date to just after the end date
+                // (this will either tick over to the next day or put us just after the activity end date)
+                hoursFrom = hoursTo.AddMilliseconds(1);
+            }
+        }
+
+        /// <summary>
+        /// Adds the activity's hours to the aggregation if it falls within the filtered date range
+        /// </summary>
+        /// <param name="dateAggregation"></param>
+        /// <param name="dateList"></param>
+        /// <param name="ts"></param>
+        /// <param name="hoursFrom"></param>
+        /// <param name="hoursTo"></param>
+        private void AggregateIfFiltered(HashSet<AggregatedTimesheetEntry> dateAggregation, HashSet<DateTimeOffset> dateList, TimesheetActivity ts, DateTimeOffset hoursFrom, DateTimeOffset hoursTo)
+        {
+            // if the date is within the filter we want to add the hours to the result
+            if (!this.IsInFilter(hoursFrom))
+                return;
+
+            // we need the start of the day for the date list
+            var startOfCurrentDay = hoursFrom.ToStartOfDay();
+            dateList.Add(startOfCurrentDay); // hashset so will only add once if the from date is already in the collection
+
+            // create a new aggregated activity which we then see if we have already
+            var aggregatedActivity = new AggregatedTimesheetEntry(ts);
+            dateAggregation.TryGetValue(aggregatedActivity, out var found);
+
+            if (found != null)
+            {
+                // already have this activity in the aggregation, so just add this activity's hours
+                found.AddHours(hoursFrom, hoursTo);
+            }
+            else
+            {
+                // this is a new activity, so set the hours and add it to the dates
+                aggregatedActivity.AddHours(hoursFrom, hoursTo);
+                dateAggregation.Add(aggregatedActivity);
+            }
+        }
+
+        /// <summary>
+        /// Returns a value indicating whether the specified date time falls within the filtered date range
+        /// </summary>
+        /// <param name="dateTimeOffset"></param>
+        /// <returns></returns>
+        private bool IsInFilter(DateTimeOffset dateTimeOffset)
+        {
+            return dateTimeOffset >= this.fromFilter && dateTimeOffset <= this.toFilter;
         }
     }
 }

@@ -4,11 +4,11 @@ namespace WorkTimer4
 {
     internal class ApplicationConfigJson
     {
-        public string ProjectConnector { get; set; }
+        public string? ProjectConnector { get; set; }
 
         public Dictionary<string, object?> ProjectConnectorOptions { get; set; }
 
-        public string TimesheetConnector { get; set; }
+        public string? TimesheetConnector { get; set; }
 
         public Dictionary<string, object?> TimesheetConnectorOptions { get; set; }
 

@@ -11,10 +11,10 @@ namespace WorkTimer4.ViewModels
     internal class NotifyIconWrapperViewModel : ObservableRecipient
     {
         private readonly ApplicationConfig applicationConfig;
-        private string toolTip;
+        private string? toolTip;
         private Activity? currentActivity;
 
-        public string ToolTip
+        public string? ToolTip
         {
             get
             {
@@ -26,7 +26,7 @@ namespace WorkTimer4.ViewModels
             }
         }
 
-        public ObservableCollection<ProjectGroup> Projects { get { return this.applicationConfig.Projects; } }
+        public ObservableCollection<ProjectGroup> Projects { get { return this.applicationConfig.ProjectGroups; } }
 
         public ICommand NotifyIconExitCommand { get; }
 
@@ -39,7 +39,7 @@ namespace WorkTimer4.ViewModels
         {
             this.applicationConfig = applicationConfig;
             this.SetToolTip(null);
-           
+
             this.NotifyIconExitCommand = new RelayCommand(this.Exit);
             this.ProjectSelectedCommand = new RelayCommand<object?>(this.ProjectSelected);
             this.ViewTimesheetCommand = new RelayCommand(this.ViewTimesheet);
@@ -55,7 +55,7 @@ namespace WorkTimer4.ViewModels
                 // end any current selected project
                 this.ProjectSelected(null);
                 return;
-            }               
+            }
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace WorkTimer4.ViewModels
         /// <param name="args"></param>
         private void ProjectSelected(object? args)
         {
-            var e = args as Events.ProjectSelectedEventArgs;           
+            var e = args as Events.ProjectSelectedEventArgs;
 
             var utcDate = DateTimeOffset.UtcNow;
 
@@ -108,7 +108,7 @@ namespace WorkTimer4.ViewModels
         /// <param name="utcStart"></param>
         private void StartNewActivity(Project project, DateTimeOffset utcStart)
         {
-            
+
             this.currentActivity = new Activity(project, utcStart);
             this.SetToolTip(project.ToString());
             this.IsActive = true;
@@ -154,7 +154,7 @@ namespace WorkTimer4.ViewModels
         {
             if (string.IsNullOrWhiteSpace(text))
             {
-                text = "Inactive";                
+                text = "Inactive";
             }
 
             this.ToolTip = string.Format("{0}\r\n{1}", AssemblyInfo.ProductName, text);

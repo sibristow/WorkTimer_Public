@@ -11,18 +11,19 @@ using Microsoft.Win32;
 using WorkTimer4.API.Connectors;
 using WorkTimer4.API.Data;
 using WorkTimer4.Connectors;
+using WorkTimer4.ViewModels;
 
-namespace WorkTimer4.ViewModels
+namespace WorkTimer4.SettingsView
 {
-    internal class MainWindowViewModel : ObservableRecipient, ISettingsWindow
+    internal class SettingsViewModel : ObservableRecipient, ISettingsWindow
     {
         private readonly ApplicationConfig applicationConfig;
         private readonly ConnectorCatalogue catalogue;
         private IProjectConnector? selectedProjectConnector;
         private ITimesheetConnector? selectedTimesheetConnector;
-        private Project selectedProject;
+        private Project? selectedProject;
 
-        public event EventHandler<EventArgs> SettingsApplied;
+        public event EventHandler<EventArgs>? SettingsApplied;
 
         public ICommand SourceUpdatedCommand { get; }
 
@@ -76,14 +77,23 @@ namespace WorkTimer4.ViewModels
             }
             set
             {
+                if (this.selectedProjectConnector != null)
+                    this.selectedProjectConnector.ProjectReloadRequest -= this.SelectedProjectConnector_ProjectReloadRequest;
+
                 this.selectedProjectConnector = value;
+
+                if (this.selectedProjectConnector != null)
+                    this.selectedProjectConnector.ProjectReloadRequest += this.SelectedProjectConnector_ProjectReloadRequest;
+
                 this.OnPropertyChanged(nameof(SelectedProjectConnector));
             }
         }
-       
-        public ObservableCollection<ProjectGroup> ProjectList { get; }
 
-        public Project SelectedProject
+
+
+        public ObservableCollection<SettingsProjectGroup> ProjectList { get; }
+
+        public Project? SelectedProject
         {
             get
             {
@@ -97,10 +107,10 @@ namespace WorkTimer4.ViewModels
         }
 
 
-        public MainWindowViewModel(ApplicationConfig applicationConfig, ConnectorCatalogue catalogue)
+        public SettingsViewModel(ApplicationConfig? applicationConfig, ConnectorCatalogue? catalogue)
         {
-            this.applicationConfig = applicationConfig;
-            this.catalogue = catalogue;
+            this.applicationConfig = applicationConfig ?? throw new ArgumentNullException(nameof(applicationConfig));
+            this.catalogue = catalogue ?? throw new ArgumentNullException(nameof(catalogue));
 
             this.ApplySettingsCommand = new RelayCommand(this.OnApplySettings);
             this.SourceUpdatedCommand = new RelayCommand<object>(this.OnSourceUpdated);
@@ -110,7 +120,7 @@ namespace WorkTimer4.ViewModels
             this.AddProjectCommand = new RelayCommand(this.OnAddProject);
             this.DeleteProjectCommand = new RelayCommand(this.OnDeleteProject);
 
-            this.ProjectList = new ObservableCollection<ProjectGroup>();
+            this.ProjectList = new ObservableCollection<SettingsProjectGroup>();
 
             // get current settings from app config
             this.GetCurrentSettings();
@@ -129,7 +139,7 @@ namespace WorkTimer4.ViewModels
         }
 
         /// <summary>
-        /// Deletes the selected project 
+        /// Deletes the selected project
         /// </summary>
         private void OnDeleteProject()
         {
@@ -138,7 +148,7 @@ namespace WorkTimer4.ViewModels
 
             this.RemoveProjectFromGroup(this.SelectedProject);
 
-            this.OnPropertyChanged(nameof(ProjectGroup.Projects));
+            this.OnPropertyChanged(nameof(SettingsProjectGroup.Projects));
         }
 
         /// <summary>
@@ -149,7 +159,7 @@ namespace WorkTimer4.ViewModels
         {
             var args = obj as RoutedPropertyChangedEventArgs<object>;
 
-            this.SelectedProject = args?.NewValue as Project;           
+            this.SelectedProject = args?.NewValue as Project;
         }
 
         /// <summary>
@@ -177,7 +187,10 @@ namespace WorkTimer4.ViewModels
         {
             if (this.applicationConfig.ProjectConnector != null)
             {
-                this.selectedProjectConnector = ApplicationConfig.CreateProjectConnector(this.applicationConfig.ProjectConnector);                
+                this.selectedProjectConnector = ApplicationConfig.CreateProjectConnector(this.applicationConfig.ProjectConnector);
+
+                if (this.selectedProjectConnector != null)
+                    this.selectedProjectConnector.ProjectReloadRequest += this.SelectedProjectConnector_ProjectReloadRequest;
             }
 
             if (this.applicationConfig.TimesheetConnector != null)
@@ -185,11 +198,11 @@ namespace WorkTimer4.ViewModels
                 this.selectedTimesheetConnector = ApplicationConfig.CreateTimesheetConnector(this.applicationConfig.TimesheetConnector);
             }
 
-            if (this.applicationConfig.Projects != null)
+            if (this.applicationConfig.ProjectGroups != null)
             {
-                foreach (var project in this.applicationConfig.Projects)
+                foreach (var projectGroup in this.applicationConfig.ProjectGroups)
                 {
-                    this.ProjectList.Add(ProjectGroup.Copy(project));
+                    this.ProjectList.Add(new SettingsProjectGroup(projectGroup));
                 }
             }
         }
@@ -209,15 +222,18 @@ namespace WorkTimer4.ViewModels
                 ApplicationConfig.Save(this.applicationConfig);
 
                 // save the project list
-                var projects = this.ProjectList.SelectMany(pg => pg.Projects);
-                this.applicationConfig.ProjectConnector.WriteProjects(projects);
-                
+                var projects = this.ProjectList.Select(pg => (ProjectGroup)pg);
+                this.applicationConfig?.ProjectConnector?.WriteProjects(projects);
+
                 // raise the event which will close the form
                 this.SettingsApplied?.Invoke(this, EventArgs.Empty);
             }
             catch(Exception ex)
             {
-                MessageBox.Show("An error occurred applying the new settings.", AssemblyInfo.ProductName, MessageBoxButton.OK, MessageBoxImage.Error);
+                var logFile = ExceptionLogger.LogException(ex);
+
+                string msg = string.Format("An error occurred applying the new settings.\r\n\r\nLog output is at\r\n{0}", logFile);
+                MessageBox.Show(msg, AssemblyInfo.ProductName, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -268,11 +284,11 @@ namespace WorkTimer4.ViewModels
         /// </summary>
         /// <param name="project"></param>
         private void ProjectUpdated(Project project)
-        {           
+        {
             // move project to new group if required?
             this.MoveToGroup(project);
 
-            this.OnPropertyChanged(nameof(ProjectGroup.Projects));
+            this.OnPropertyChanged(nameof(SettingsProjectGroup.Projects));
         }
 
         /// <summary>
@@ -280,7 +296,7 @@ namespace WorkTimer4.ViewModels
         /// </summary>
         /// <param name="project"></param>
         /// <returns></returns>
-        private ProjectGroup? FindGroupForProject(Project project)
+        private SettingsProjectGroup? FindGroupForProject(Project project)
         {
             foreach (var group in this.ProjectList)
             {
@@ -318,7 +334,7 @@ namespace WorkTimer4.ViewModels
 
             // remove the project from it's group
             currentGroup.Projects.Remove(project);
-            this.OnPropertyChanged(nameof(ProjectGroup.Projects));
+            this.OnPropertyChanged(nameof(SettingsProjectGroup.Projects));
 
             if (currentGroup.Projects.Count == 0)
             {
@@ -344,8 +360,18 @@ namespace WorkTimer4.ViewModels
             }
 
             // create a new group
-            newGroup = new ProjectGroup(newGroupName, new List<Project>() { project });
+            newGroup = new SettingsProjectGroup(newGroupName, new List<Project>() { project });
             this.ProjectList.Add(newGroup);
+        }
+
+
+
+        private void SelectedProjectConnector_ProjectReloadRequest(object? sender, EventArgs e)
+        {
+            if (this.SelectedProjectConnector == null)
+                return;
+
+            this.SelectedProjectConnector.GetProjects();
         }
     }
 }

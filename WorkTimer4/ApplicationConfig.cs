@@ -2,19 +2,19 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using WorkTimer4.API.Connectors;
 using WorkTimer4.API.Data;
 using WorkTimer4.API.Json;
 using WorkTimer4.Connectors;
-using WorkTimer4.ViewModels;
 
 namespace WorkTimer4
 {
     internal class ApplicationConfig
     {
+        private const string CONFIG_FILE = "config.json";
+
         private IProjectConnector? projectConnector;
 
         public IProjectConnector? ProjectConnector
@@ -29,17 +29,17 @@ namespace WorkTimer4
                 projectConnector = value;
                 this.AttachProjectConnectorEvents();
             }
-        }       
+        }
 
         public ITimesheetConnector? TimesheetConnector { get; set; }
 
-        public ObservableCollection<ProjectGroup> Projects { get; set; }
+        public ObservableCollection<ProjectGroup> ProjectGroups { get; set; }
 
 
 
         internal ApplicationConfig()
         {
-            this.Projects = new ObservableCollection<ProjectGroup>();
+            this.ProjectGroups = new ObservableCollection<ProjectGroup>();
         }
 
 
@@ -47,7 +47,7 @@ namespace WorkTimer4
         {
             var config = new ApplicationConfig();
 
-            var configText = File.ReadAllText("config.json");
+            var configText = File.ReadAllText(CONFIG_FILE);
             var appConfigJson = JsonSerializer.Deserialize<ApplicationConfigJson>(configText, JsonSerialisation.SerialiserOptions);
 
             if (appConfigJson == null)
@@ -74,14 +74,14 @@ namespace WorkTimer4
 
             var configJson = new ApplicationConfigJson()
             {
-                ProjectConnector = config.ProjectConnector.GetType().FullName,
+                ProjectConnector = config.ProjectConnector?.GetType().FullName,
                 ProjectConnectorOptions = GetOptions(config.ProjectConnector),
-                TimesheetConnector = config.ProjectConnector.GetType().FullName,
+                TimesheetConnector = config.TimesheetConnector?.GetType().FullName,
                 TimesheetConnectorOptions = GetOptions(config.TimesheetConnector)
             };
 
             var serialised = JsonSerializer.Serialize(configJson, JsonSerialisation.SerialiserOptions);
-            File.WriteAllText("config.json", serialised);
+            File.WriteAllText(CONFIG_FILE, serialised);
         }
 
 
@@ -102,15 +102,25 @@ namespace WorkTimer4
         }
 
 
-        private static IProjectConnector CreateProjectConnector(ApplicationConfigJson appConfigJson)
+        private static IProjectConnector CreateProjectConnector(ApplicationConfigJson? appConfigJson)
         {
+            if (appConfigJson == null)
+            {
+                throw new ArgumentNullException(nameof(appConfigJson));
+            }
+
             var provider = CreateConnector<IProjectConnector, DefaultProjectConnector>(appConfigJson.ProjectConnector, appConfigJson.ProjectConnectorOptions);
 
             return provider;
         }
 
-        private static ITimesheetConnector CreateTimesheetConnector(ApplicationConfigJson appConfigJson)
+        private static ITimesheetConnector CreateTimesheetConnector(ApplicationConfigJson? appConfigJson)
         {
+            if (appConfigJson == null)
+            {
+                throw new ArgumentNullException(nameof(appConfigJson));
+            }
+
             var provider = CreateConnector<ITimesheetConnector, DefaultTimesheetConnector>(appConfigJson.TimesheetConnector, appConfigJson.TimesheetConnectorOptions);
 
             return provider;
@@ -124,13 +134,13 @@ namespace WorkTimer4
         /// <param name="connectorTypeString"></param>
         /// <param name="connectorOptions"></param>
         /// <returns></returns>
-        private static TConnector CreateConnector<TConnector, TDefault>(string connectorTypeString, Dictionary<string, object> connectorOptions)
+        private static TConnector CreateConnector<TConnector, TDefault>(string? connectorTypeString, Dictionary<string, object?> connectorOptions)
         {
             Type? type = null;
 
             // string may be empty/null if config json was not deserialisd or property is missing/empty
             if (!string.IsNullOrWhiteSpace(connectorTypeString))
-            {              
+            {
                 type = Type.GetType(connectorTypeString);
             }
 
@@ -140,12 +150,14 @@ namespace WorkTimer4
             }
 
             // create an instance of the required connector
-            TConnector connector = (TConnector)Activator.CreateInstance(type);
+            var obj = Activator.CreateInstance(type);
 
-            if (connector == null)
+            if (obj == null)
             {
                 throw new Exception($"Cannot create instance of {typeof(TConnector)}");
             }
+
+            TConnector connector = (TConnector)obj;
 
             // set the connector's options
             foreach (var providerOption in connectorOptions)
@@ -154,10 +166,10 @@ namespace WorkTimer4
                 if (propInfo == null || propInfo.SetMethod == null)
                     continue;
 
-                var jsonElement = (JsonElement)providerOption.Value;
-                var setValue = jsonElement.ToObject(propInfo.PropertyType);
+                var jsonElement = (JsonElement?)providerOption.Value;
+                var setValue = jsonElement?.ToObject(propInfo.PropertyType) ?? null;
 
-                propInfo.SetMethod.Invoke(connector, new object[] { setValue });
+                propInfo.SetMethod.Invoke(connector, new object[] { setValue! });
             }
 
             return connector;
@@ -177,22 +189,24 @@ namespace WorkTimer4
             var type = sourceConnector.GetType();
 
             // create an instance of the required connector
-            TConnector newConnector = (TConnector)Activator.CreateInstance(type);
+            var obj = Activator.CreateInstance(type);
 
-            if (newConnector == null)
+            if (obj == null)
             {
                 throw new Exception($"Cannot create instance of {typeof(TConnector)}");
             }
+
+            TConnector newConnector = (TConnector)obj;
 
             // set the properties
             var sourceProps = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             foreach(var sourceProp in sourceProps)
             {
-                if (sourceProp.SetMethod == null)
+                if (sourceProp == null || sourceProp.GetMethod == null || sourceProp.SetMethod == null)
                     continue;
 
                 var sourceVal = sourceProp.GetMethod.Invoke(sourceConnector, null);
-                sourceProp.SetMethod.Invoke(newConnector, new object[] { sourceVal });
+                sourceProp.SetMethod.Invoke(newConnector, new object[] { sourceVal! });
             }
 
             return newConnector;
@@ -208,7 +222,7 @@ namespace WorkTimer4
             var sourceProps = connector.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
             foreach (var sourceProp in sourceProps)
             {
-                if (sourceProp.SetMethod == null)
+                if (sourceProp == null || sourceProp.GetMethod == null || sourceProp.SetMethod == null)
                     continue;
 
                 object? sourceVal = sourceProp.GetMethod.Invoke(connector, null);
@@ -222,7 +236,7 @@ namespace WorkTimer4
 
         internal void GetProjects()
         {
-            this.Projects.Clear();
+            this.ProjectGroups.Clear();
 
             if (this.ProjectConnector == null)
             {
@@ -231,24 +245,14 @@ namespace WorkTimer4
 
             var projects = this.ProjectConnector.GetProjects();
 
-            var dictionary = new Dictionary<string, List<Project>>();
-
-            foreach (var project in projects)
+            if (projects == null)
             {
-                var groupName = string.IsNullOrWhiteSpace(project.Group) ? Project.UNGROUPED : project.Group;
-
-                if (!dictionary.ContainsKey(groupName))
-                {
-                    dictionary.Add(groupName, new List<Project>());
-                }
-
-                dictionary[groupName].Add(project);
+                return;
             }
 
-            var groupedProjects = dictionary.OrderBy(d => d.Key).Select(d => new ProjectGroup(d.Key, d.Value.OrderBy(v => v.Name)));
-            foreach(var gp in groupedProjects)
+            foreach(var gp in projects)
             {
-                this.Projects.Add(gp);
+                this.ProjectGroups.Add(gp);
             }
         }
 

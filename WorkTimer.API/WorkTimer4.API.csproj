@@ -2,13 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
-    <Version>4.2.0</Version>
+    <Version>4.3.1</Version>
     <Product>Work Timer 4 API</Product>
     <Authors>Simon Bristow</Authors>
     <Description>API for Work Timer 4</Description>
     <PackageId>WorkTimer4.API</PackageId>
     <AssemblyName>WorkTimer4.API</AssemblyName>
     <RootNamespace>WorkTimer4.API</RootNamespace>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
 </Project>

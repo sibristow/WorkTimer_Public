@@ -21,17 +21,12 @@ namespace WorkTimer4.Connectors
         /// <summary>
         /// Gets or sets the project code
         /// </summary>
-        public string ProjectCode { get; set; }
+        public string? ProjectCode { get; set; }
 
         /// <summary>
         /// Gets or sets the activity code
         /// </summary>
-        public string ActivityCode { get; set; }
-
-        /// <summary>
-        /// Gets or sets the number of hours
-        /// </summary>
-        public double Hours { get; set; }
+        public string? ActivityCode { get; set; }
 
 
         public TimesheetActivity()
@@ -44,7 +39,6 @@ namespace WorkTimer4.Connectors
             this.End = activity.End;
             this.ProjectCode = activity.Project.ProjectCode;
             this.ActivityCode = activity.Project.ActivityCode;
-            this.Hours = (this.End - this.Start).TotalHours;
         }
     }
 }
