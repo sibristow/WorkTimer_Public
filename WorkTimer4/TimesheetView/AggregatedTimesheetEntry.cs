@@ -1,21 +1,49 @@
 ﻿using System;
-using System.Collections.Generic;
+using CommunityToolkit.Mvvm.ComponentModel;
 using WorkTimer4.API.Data;
 using WorkTimer4.Connectors;
 
 namespace WorkTimer4.TimesheetView
 {
-    internal class AggregatedTimesheetEntry
+    /// <summary>
+    /// Represents an entry for the timesheet where the hours worked on a project are aggregated by date
+    /// </summary>
+    internal class AggregatedTimesheetEntry : ObservableObject
     {
+        private string? projectCode;
+        private string? activityCode;
+
         /// <summary>
         /// Gets or sets the project code
         /// </summary>
-        public string? ProjectCode { get; set; }
+        public string? ProjectCode
+        {
+            get
+            {
+                return projectCode ?? "(undefined)";
+            }
+            set
+            {
+                projectCode = value;
+                this.OnPropertyChanged(nameof(ProjectCode));
+            }
+        }
 
         /// <summary>
         /// Gets or sets the activity code
         /// </summary>
-        public string? ActivityCode { get; set; }
+        public string? ActivityCode
+        {
+            get
+            {
+                return activityCode ?? "(undefined)";
+            }
+            set
+            {
+                activityCode = value;
+                this.OnPropertyChanged(nameof(ActivityCode));
+            }
+        }
 
         /// <summary>
         /// Gets the activity hours aggregated by date
@@ -23,19 +51,25 @@ namespace WorkTimer4.TimesheetView
         /// <remarks>
         /// Key is the formatted date, see <see cref="DateTimeExtensions.AsAggregationKey(DateTimeOffset)"/>
         /// </remarks>
-        public Dictionary<string, DateHours> AggregatedHours { get; }
+        public AggregatedHours AggregatedHours { get; }
+
+        /// <summary>
+        /// Gets the activity colour
+        /// </summary>
+        public string? Colour { get; }
 
 
         public AggregatedTimesheetEntry(TimesheetActivity activity)
             : this(activity.ProjectCode, activity.ActivityCode)
         {
+            this.Colour = activity.Colour;
         }
 
         public AggregatedTimesheetEntry(string? projectCode, string? activityCode)
         {
             this.ProjectCode = projectCode;
             this.ActivityCode = activityCode;
-            this.AggregatedHours = new Dictionary<string, DateHours>();
+            this.AggregatedHours = new AggregatedHours();
         }
 
 
@@ -61,17 +95,7 @@ namespace WorkTimer4.TimesheetView
 
             var addedHours = (end - start).TotalHours;
 
-            var dayKey = start.AsAggregationKey();
-
-            if (this.AggregatedHours.ContainsKey(dayKey))
-            {
-                // we already have some hours recorded for this activity on this day, so add these
-                this.AggregatedHours[dayKey] += addedHours;
-                return;
-            }
-
-            // new day for this activity, create new hours
-            this.AggregatedHours[dayKey] = new DateHours(addedHours);
+            this.AggregatedHours.AddHours(start, addedHours);
         }
     }
 }

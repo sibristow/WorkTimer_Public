@@ -2,8 +2,8 @@
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using WorkTimer4.API.Data;
 
 namespace WorkTimer4.ViewModels

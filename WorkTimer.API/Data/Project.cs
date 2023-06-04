@@ -180,7 +180,7 @@ namespace WorkTimer4.API.Data
         {
             if (sourceProject == null)
             {
-                return Project.CreateDefault();
+                return Project.CreateDefault(null);
             }
 
             return new Project()
@@ -196,12 +196,12 @@ namespace WorkTimer4.API.Data
             };
         }
 
-        public static Project CreateDefault()
+        public static Project CreateDefault(string? group)
         {
             return new Project()
             {
                 Name = "New Project",
-                Group = Project.UNGROUPED,
+                Group = string.IsNullOrWhiteSpace(group) ? Project.UNGROUPED : group,
                 Colour = "#00000000", // transparent ARGB
                 Active = true
             };

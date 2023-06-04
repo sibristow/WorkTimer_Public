@@ -1,0 +1,148 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+                    xmlns:local="clr-namespace:WorkTimer4.SettingsView.Pages"
+                    xmlns:assets="clr-namespace:WorkTimer4.Assets"
+                     xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
+                    xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
+                    xmlns:pt="http://propertytools.org/wpf"
+                    xmlns:api="clr-namespace:WorkTimer4.API.Data;assembly=WorkTimer4.API"
+                    xmlns:vm="clr-namespace:WorkTimer4.SettingsView">
+
+    <DataTemplate DataType="{x:Type local:ProjectsPage}">
+
+        <Grid DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type adonisControls:AdonisWindow}}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TreeView x:Name="treeView" Grid.Column="0" Grid.RowSpan="1" ItemsSource="{Binding ProjectList}" BorderThickness="1" BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer1BorderBrush}}" Margin="0" Padding="4">
+                <TreeView.Resources>
+                    <DataTemplate DataType="{x:Type api:Project}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="22"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <Rectangle Width="10" Height="10" Margin="4,3,8,3" Fill="{Binding Colour}"/>
+                            <Image Grid.Column="1" Source="{Binding Icon, Converter={StaticResource IconConverter}}" UseLayoutRounding="True" SnapsToDevicePixels="True" RenderSize="16,16" HorizontalAlignment="Left" RenderOptions.BitmapScalingMode="HighQuality" />
+                            <TextBlock Grid.Column="2" Text="{Binding Name}" Margin="8,4,8,4" />
+                        </Grid>
+                    </DataTemplate>
+                    <HierarchicalDataTemplate DataType="{x:Type vm:SettingsProjectGroup}" ItemsSource="{Binding Projects}">
+                        <TextBlock Text="{Binding Name}" Margin="4"/>
+                    </HierarchicalDataTemplate>
+
+                </TreeView.Resources>
+                <TreeView.ItemContainerStyle>
+                    <Style TargetType="TreeViewItem">
+                        <Setter Property="Margin" Value="0,0,8,0"/>
+                    </Style>
+                </TreeView.ItemContainerStyle>
+
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectedItemChanged">
+                        <i:InvokeCommandAction Command="{Binding SelectedProjectChangedCommand}" PassEventArgsToCommand="True"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+
+            </TreeView>
+
+            <ContentPresenter Grid.Column="1" Content="{Binding SelectedProject}">
+                <ContentPresenter.Resources>
+                    <DataTemplate DataType="{x:Type vm:SettingsProjectGroup}">
+                        <TextBlock Text="Select a Project item" Style="{StaticResource SettingLabelStyle}" VerticalAlignment="Top"/>
+                    </DataTemplate>
+
+                    <DataTemplate DataType="{x:Type api:Project}">
+                        <Grid Grid.Column="1" Margin="8,0,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="{StaticResource ColumnWidth}"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Text="Name" Style="{StaticResource SettingLabelStyle}"/>
+                            <TextBox Grid.Column="1" Text="{Binding Name}" Style="{StaticResource TextBoxStyle}"/>
+
+                            <TextBlock Grid.Row="1" Text="Project Code" Style="{StaticResource SettingLabelStyle}"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding ProjectCode}" Style="{StaticResource TextBoxStyle}"/>
+
+                            <TextBlock Grid.Row="2" Text="Activity Code" Style="{StaticResource SettingLabelStyle}"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding ActivityCode}" Style="{StaticResource TextBoxStyle}"/>
+
+                            <TextBlock Grid.Row="3" Text="Group" Style="{StaticResource SettingLabelStyle}"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Group, NotifyOnSourceUpdated=True}" Style="{StaticResource TextBoxStyle}"/>
+
+                            <TextBlock Grid.Row="4" Text="Category" Style="{StaticResource SettingLabelStyle}"/>
+                            <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Category}" Style="{StaticResource TextBoxStyle}"/>
+
+                            <TextBlock Grid.Row="5" Text="Colour" Style="{StaticResource SettingLabelStyle}"/>
+                            <pt:ColorPicker Grid.Row="5" Grid.Column="1" Margin="4" Background="White"
+                                            SelectedColor="{Binding Colour}"
+                                            Style="{StaticResource ColourPickerStyle}">
+                            </pt:ColorPicker>
+
+                            <TextBlock Grid.Row="6" Text="Icon" Style="{StaticResource SettingLabelStyle}"/>
+                            <Grid Grid.Row="6" Grid.Column="1" Margin="4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="28"/>
+                                    <ColumnDefinition Width="28"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Width="24" Height="24" BorderThickness="0" BorderBrush="{StaticResource ComboBox.Static.Border}"/>
+                                <Image x:Name="projectIcon"
+                                                   Source="{Binding Icon, Converter={StaticResource IconConverter}}"
+                                                   Margin="4"
+                                                   UseLayoutRounding="True"
+                                                   SnapsToDevicePixels="True"
+                                                   RenderSize="16,16"
+                                                   RenderOptions.BitmapScalingMode="HighQuality"/>
+
+
+                                <Button Grid.Column="2" Command="{Binding DataContext.OpenIconCommand, ElementName=treeView}" CommandParameter="{Binding}" Background="Transparent" Margin="0,0,4,0" Padding="4" Width="24" Height="24" ToolTip="Select icon">
+                                    <Image Source="{x:Static assets:WPFAssets.Folder}" ToolTip="Select Icon" Width="16" Height="16"/>
+                                </Button>
+
+                                <Button Grid.Column="3" Command="{Binding DataContext.ClearIconCommand, ElementName=treeView}" CommandParameter="{Binding}" Background="Transparent" Padding="4" Width="24" Height="24" ToolTip="Clear icon">
+                                    <Image Source="{x:Static assets:WPFAssets.Cross}" ToolTip="Remove Icon" Width="16" Height="16"/>
+                                </Button>
+                            </Grid>
+
+                            <TextBlock Grid.Row="7" Text="Active" Style="{StaticResource SettingLabelStyle}"/>
+                            <CheckBox Grid.Row="7" Grid.Column="1" IsChecked="{Binding Active, NotifyOnSourceUpdated=True}" Margin="4"/>
+                        </Grid>
+                    </DataTemplate>
+                </ContentPresenter.Resources>
+
+            </ContentPresenter>
+
+            <StackPanel Grid.Row="1"  VerticalAlignment="Bottom" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0,4">
+                <Button Content="Add" Width="85" Margin="4,0" Command="{Binding AddProjectCommand}"/>
+                <Button Content="Delete" Width="85" Margin="4,0,0,0"  Command="{Binding DeleteProjectCommand}" />
+            </StackPanel>
+
+        </Grid>
+
+    </DataTemplate>
+</ResourceDictionary>

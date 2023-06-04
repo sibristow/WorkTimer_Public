@@ -11,13 +11,14 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using AdonisUI.Controls;
 
 namespace WorkTimer4.TimesheetView
 {
     /// <summary>
     /// Interaction logic for TimesheetViewer.xaml
     /// </summary>
-    public partial class TimesheetViewer : Window
+    public partial class TimesheetViewer : AdonisWindow
     {
         public TimesheetViewer()
         {

@@ -12,6 +12,8 @@ namespace WorkTimer4.TimesheetView
     {
         internal const string HEADER_DATE_FORMAT = "ddd, dd MMM";
 
+        private const int FIXED_COL_COUNT = 3;
+
         public static IEnumerable<DateTimeOffset> GetDateList(DependencyObject obj)
         {
             return (IEnumerable<DateTimeOffset>)obj.GetValue(DateListProperty);
@@ -33,7 +35,7 @@ namespace WorkTimer4.TimesheetView
                 return;
 
             // remove all the previous date columns, but leave the Project and Activity columns
-            for (var i = grid.Columns.Count - 1; i > 1; i--)
+            for (var i = grid.Columns.Count - 1; i > (FIXED_COL_COUNT-1); i--)
             {
                 grid.Columns.RemoveAt(i);
             }

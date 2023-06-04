@@ -22,7 +22,59 @@
 
 
 
-<!-- below here are the styles and templates to improve the PropertyTools ColourPicker control -->
+    <!-- settings pages -->
+    <Style x:Key="SettingLabelStyle" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource {x:Type TextBlock}}">
+        <Setter Property="Margin" Value="16,8,8,8"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style x:Key="SettingGroupLabelStyle" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource {x:Type TextBlock}}">
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="Margin" Value="0,32,0,8"/>
+        <Setter Property="Padding" Value="0"/>
+    </Style>
+
+    <Style x:Key="TextBoxStyle" TargetType="TextBox">
+        <Setter Property="Margin" Value="4"/>
+        <Setter Property="Padding" Value="4,2"/>
+        <Setter Property="TextAlignment" Value="Left"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="ButtonStyle" TargetType="Button">
+        <Setter Property="Width" Value="86"/>
+        <Setter Property="Height" Value="24"/>
+        <Setter Property="Margin" Value="5"/>
+    </Style>
+
+    <GridLength x:Key="ColumnWidth">160</GridLength>
+
+    <SolidColorBrush x:Key="TabBackgroundBrush" Color="LightGray"/>
+    <SolidColorBrush x:Key="TabActiveBorderBrush" Color="{x:Static SystemColors.HighlightColor}"/>
+    <SolidColorBrush x:Key="TabInactiveBorderBrush" Color="{x:Static SystemColors.MenuHighlightColor}"/>
+
+    <local:IconConverter x:Key="IconConverter"/>
+
+    <Style x:Key="PropertyGridStyle" TargetType="{x:Type pt:PropertyGrid}">
+        <Setter Property="Margin" Value="8,0,8,4"/>
+        <Setter Property="TabVisibility" Value="Collapsed"/>
+        <Setter Property="ShowReadOnlyProperties" Value="False"/>
+        <Setter Property="MinimumLabelWidth" Value="160"/>
+        <Setter Property="LabelWidthSharing" Value="SharedInGroup"/>
+        <Setter Property="CategoryControlType" Value="Template"/>
+        <Setter Property="CategoryHeaderTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
+    <!-- below here are the styles and templates to improve the PropertyTools ColourPicker control -->
 
     <Style x:Key="FocusVisual">
         <Setter Property="Control.Template">
@@ -178,10 +230,10 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition MinWidth="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}" Width="0"/>
             </Grid.ColumnDefinitions>
-            <Popup x:Name="PART_Popup" AllowsTransparency="true" Grid.ColumnSpan="2" 
-                   IsOpen="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" 
-                   Margin="1"                   
-                   PopupAnimation="{DynamicResource {x:Static SystemParameters.ComboBoxPopupAnimationKey}}" 
+            <Popup x:Name="PART_Popup" AllowsTransparency="true" Grid.ColumnSpan="2"
+                   IsOpen="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                   Margin="1"
+                   PopupAnimation="{DynamicResource {x:Static SystemParameters.ComboBoxPopupAnimationKey}}"
                    Placement="Bottom">
                 <Border x:Name="dropDownBorder" BorderBrush="{DynamicResource {x:Static SystemColors.WindowFrameBrushKey}}" BorderThickness="1" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}">
                     <ScrollViewer x:Name="DropDownScrollViewer">
@@ -195,9 +247,9 @@
                 </Border>
             </Popup>
             <ToggleButton x:Name="toggleButton" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Grid.ColumnSpan="2" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Style="{StaticResource ColourComboBoxToggleButton}"/>
-            <ContentPresenter x:Name="contentPresenter"  
+            <ContentPresenter x:Name="contentPresenter"
                               Content="{Binding SelectedColor, RelativeSource={RelativeSource Mode=TemplatedParent}}"
-                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" IsHitTestVisible="false" 
+                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" IsHitTestVisible="false"
                               Margin="{TemplateBinding Padding}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
                 <ContentPresenter.ContentTemplate>
                     <DataTemplate>
@@ -212,7 +264,7 @@
                                                             Visibility="{Binding Converter={StaticResource ValueToVisibilityConverter}, ConverterParameter={x:Static pt:ColorHelper.Automatic}}" />
                                 <Polyline Points="2,11 11,2" Stroke="Black" StrokeThickness="2"
                                                             Visibility="{Binding Converter={StaticResource ValueToVisibilityConverter}, ConverterParameter={x:Static pt:ColorHelper.Automatic}}" />
-                                <TextBlock Text="?" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                                <TextBlock Text="?" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"
                                                             Visibility="{Binding Converter={StaticResource ValueToVisibilityConverter}, ConverterParameter={x:Static pt:ColorHelper.UndefinedColor}}" />
                             </Grid>
                             <TextBlock Margin="8 0 0 0" VerticalAlignment="Center" Text="{Binding}" />
@@ -235,10 +287,10 @@
             </Trigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>
-    
+
     <SolidColorBrush x:Key="TextBox.Static.Background" Color="#FFFFFFFF"/>
-    
-   
+
+
     <Style x:Key="DefaultColourComboBoxStyle" TargetType="{x:Type pt:ColorPicker}">
         <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
         <Setter Property="Background" Value="{StaticResource ComboBox.Static.Background}"/>
@@ -254,6 +306,6 @@
         <Setter Property="MaxDropDownHeight" Value="1000"/>
         <Setter Property="Template" Value="{StaticResource ColourComboBoxTemplate}"/>
     </Style>
-
+    <Style x:Key="ColourPickerStyle" TargetType="{x:Type pt:ColorPicker}" BasedOn="{StaticResource DefaultColourComboBoxStyle}"/>
 
 </ResourceDictionary>
