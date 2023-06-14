@@ -1,0 +1,46 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:WorkTimer4.SettingsView.Pages"
+                     xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
+                    xmlns:pt="http://propertytools.org/wpf">
+
+    <DataTemplate DataType="{x:Type local:ProjectSettingsPage}">
+        <Grid DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type adonisControls:AdonisWindow}}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="Connector" Style="{StaticResource SettingGroupLabelStyle}" Margin="0,0,0,8"/>
+            <ComboBox Grid.Row="1"
+                      Margin="8"
+                      DisplayMemberPath="Name"
+                      SelectedValuePath="Name"
+                      SelectedItem="{Binding SelectedProjectConnector}"
+                      ItemsSource="{Binding ProjectConnectors}"/>
+
+            <TextBlock Grid.Row="2" Text="Properties" Style="{StaticResource SettingGroupLabelStyle}"/>
+            <pt:PropertyGrid Grid.Row="3"
+                       SelectedObject="{Binding SelectedProjectConnector}"
+                       Style="{StaticResource PropertyGridStyle}">
+                <pt:PropertyGrid.Resources>
+                    <Style TargetType="{x:Type pt:TextBoxEx}">
+                        <Setter Property="Margin" Value="0,4"/>
+                        <Setter Property="Padding" Value="4"/>
+                    </Style>
+                    <Style TargetType="Separator">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                    </Style>
+                    <Style TargetType="Label">
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="Margin" Value="0"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                    </Style>
+                </pt:PropertyGrid.Resources>
+            </pt:PropertyGrid>
+        </Grid>
+    </DataTemplate>
+
+</ResourceDictionary>

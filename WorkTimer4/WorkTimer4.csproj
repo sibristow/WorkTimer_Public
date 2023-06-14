@@ -9,7 +9,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>WorkTimer4</AssemblyName>
     <AssemblyTitle>Work Timer 4</AssemblyTitle>
-    <Version>4.3.1</Version>
+    <Version>4.4.0</Version>
     <Authors>Simon Bristow</Authors>
     <Company />
     <Product>Work Timer 4</Product>
@@ -18,20 +18,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Data_V1\**" />
-    <EmbeddedResource Remove="Data_V1\**" />
-    <None Remove="Data_V1\**" />
-    <Page Remove="Data_V1\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="Assets\clock_blue.ico" />
-    <None Remove="Assets\clock_red.ico" />
-    <None Remove="Assets\folder_image.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
+    <PackageReference Include="AdonisUI.ClassicTheme" Version="1.17.1" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
     <PackageReference Include="PropertyTools.Wpf" Version="3.1.0" />
     <PackageReference Include="System.Composition" Version="6.0.0" />

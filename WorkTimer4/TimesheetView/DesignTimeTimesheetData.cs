@@ -1,13 +1,12 @@
-﻿using System;
+﻿#if DEBUG
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
-using WorkTimer4.API.Data;
 using WorkTimer4.Connectors;
 
 namespace WorkTimer4.TimesheetView
 {
-    internal class TimesheetViewModel : ObservableObject
+    internal class DesignTimeTimesheetData : ObservableObject//: TimesheetViewModel
     {
         private DateTime from;
         private DateTime to;
@@ -115,21 +114,28 @@ namespace WorkTimer4.TimesheetView
             }
         }
 
-
-
-
-        public TimesheetViewModel(List<TimesheetActivity> recorded)
+        public DesignTimeTimesheetData()
+            //: base()
         {
-            this.To = DateTime.Today;
-            this.From = this.To.GetPreviousMonday();
-            this.Recorded = recorded ?? Enumerable.Empty<TimesheetActivity>();
-        }
+            var list = new List<TimesheetActivity>();
 
-        internal TimesheetViewModel()
-        {
-            this.To = DateTime.Today;
-            this.From = this.To.GetPreviousMonday();
-            this.Recorded = Enumerable.Empty<TimesheetActivity>();
+            // create some dummy items
+            for (var i = 0; i< 6; i++)
+            {
+                var activity = new TimesheetActivity() { ProjectCode = $"Project {i}", ActivityCode = $"Activity {i}" };
+                activity.Start = this.From.AddDays(i).AddHours(8).AddMinutes(Random.Shared.Next(180));
+                activity.End = activity.Start.AddMinutes(Random.Shared.Next(60));
+
+                var activity2 = new TimesheetActivity() { ProjectCode = $"Project {i}", ActivityCode = $"Activity {i}" };
+                activity2.Start = activity.Start.AddMinutes(Random.Shared.Next(120));
+                activity2.End = activity2.Start.AddMinutes(Random.Shared.Next(60));
+
+                list.Add(activity);
+                list.Add(activity2);
+            }
+
+            this.Recorded = list;
         }
     }
 }
+#endif

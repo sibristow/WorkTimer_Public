@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using WorkTimer4.API.Connectors;
 using WorkTimer4.API.Data;
 using WorkTimer4.Connectors;
+using WorkTimer4.SettingsView.Pages;
 using WorkTimer4.ViewModels;
 
 namespace WorkTimer4.SettingsView
@@ -22,8 +24,33 @@ namespace WorkTimer4.SettingsView
         private IProjectConnector? selectedProjectConnector;
         private ITimesheetConnector? selectedTimesheetConnector;
         private Project? selectedProject;
+        private ISettingsPage? selectedPage;
 
         public event EventHandler<EventArgs>? SettingsApplied;
+
+        public ObservableCollection<ISettingsPage> Pages { get; }
+
+        public ISettingsPage? SelectedPage
+        {
+            get => this.selectedPage;
+            set
+            {
+                value ??= this.Pages.FirstOrDefault();
+
+                //if (value != null && !value.IsLoading)
+                //{
+                //    Task.Run(() =>
+                //    {
+                //        value.IsLoading = true;
+                //        value.Init();
+                //    }).ContinueWith((task) => value.IsLoading = false);
+                //}
+
+                SetProperty(ref this.selectedPage, value);
+            }
+        }
+
+
 
         public ICommand SourceUpdatedCommand { get; }
 
@@ -120,6 +147,9 @@ namespace WorkTimer4.SettingsView
             this.AddProjectCommand = new RelayCommand(this.OnAddProject);
             this.DeleteProjectCommand = new RelayCommand(this.OnDeleteProject);
 
+            this.Pages = new ObservableCollection<ISettingsPage>(this.CreatePages());
+            this.selectedPage = this.Pages.FirstOrDefault();
+
             this.ProjectList = new ObservableCollection<SettingsProjectGroup>();
 
             // get current settings from app config
@@ -131,7 +161,9 @@ namespace WorkTimer4.SettingsView
         /// </summary>
         private void OnAddProject()
         {
-            var project = Project.CreateDefault();
+            var currentGroup = this.selectedProject?.Group ?? null;
+
+            var project = Project.CreateDefault(currentGroup);
 
             this.AddProjectToGroup(project);
 
@@ -372,6 +404,15 @@ namespace WorkTimer4.SettingsView
                 return;
 
             this.SelectedProjectConnector.GetProjects();
+        }
+
+
+        private IEnumerable<ISettingsPage> CreatePages()
+        {
+            yield return new ProjectSettingsPage();
+            yield return new ProjectsPage();
+            yield return new TimesheetsPage();
+            yield return new AboutPage();
         }
     }
 }

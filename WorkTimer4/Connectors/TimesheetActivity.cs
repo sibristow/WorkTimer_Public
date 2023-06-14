@@ -28,6 +28,11 @@ namespace WorkTimer4.Connectors
         /// </summary>
         public string? ActivityCode { get; set; }
 
+        /// <summary>
+        /// Gets or sets the activity project colour
+        /// </summary>
+        public string? Colour { get; set; }
+
 
         public TimesheetActivity()
         {
@@ -39,6 +44,15 @@ namespace WorkTimer4.Connectors
             this.End = activity.End;
             this.ProjectCode = activity.Project.ProjectCode;
             this.ActivityCode = activity.Project.ActivityCode;
+            this.Colour = activity.Project.Colour;
+        }
+
+        public override string ToString()
+        {
+            var pc = this.ProjectCode ?? "(undefined)";
+            var ac = this.ActivityCode ?? "(undefined)";
+
+            return string.Format("{0} {1}", pc, ac);
         }
     }
 }
