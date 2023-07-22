@@ -7,7 +7,7 @@ namespace WorkTimer4.TimesheetView
     /// <summary>
     /// Represents the hours worked on a project aggregated by date
     /// </summary>
-    internal class AggregatedHours : Dictionary<string, DateHours>
+    internal class AggregatedHours : Dictionary<string, double>
     {
         internal void AddHours(DateTimeOffset start, double addedHours)
         {
@@ -21,7 +21,7 @@ namespace WorkTimer4.TimesheetView
             }
 
             // new day for this activity, create new hours
-            this[dayKey] = new DateHours(addedHours);
+            this[dayKey] = addedHours; // new DateHours(addedHours);
         }
     }
 }

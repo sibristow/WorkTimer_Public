@@ -8,11 +8,17 @@ using WorkTimer4.API.Data;
 
 namespace WorkTimer4.TimesheetView
 {
+    /// <summary>
+    /// Attached properties and behaviours for generating the aggregation table columns and binding the aggregated hours
+    /// </summary>
     internal class DateAggregation
     {
+        internal const double DEFAULT_REPORTING = 0.25;
         internal const string HEADER_DATE_FORMAT = "ddd, dd MMM";
-
         private const int FIXED_COL_COUNT = 3;
+
+        internal static ReportingConverter ReportingConverter = new ReportingConverter();
+
 
         public static IEnumerable<DateTimeOffset> GetDateList(DependencyObject obj)
         {
@@ -28,10 +34,24 @@ namespace WorkTimer4.TimesheetView
 
 
 
+
+        public static double GetReportingFraction(DependencyObject obj)
+        {
+            return (double)obj.GetValue(ReportingFractionProperty);
+        }
+
+        public static void SetReportingFraction(DependencyObject obj, double value)
+        {
+            obj.SetValue(ReportingFractionProperty, value);
+        }
+
+        // Using a DependencyProperty as the backing store for ReportingFraction.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ReportingFractionProperty = DependencyProperty.RegisterAttached("ReportingFraction", typeof(double), typeof(DateAggregation), new PropertyMetadata(DEFAULT_REPORTING));
+
+
         private static void OnDateList_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var grid = d as DataGrid;
-            if (grid == null)
+            if (d is not DataGrid grid)
                 return;
 
             // remove all the previous date columns, but leave the Project and Activity columns
@@ -45,9 +65,17 @@ namespace WorkTimer4.TimesheetView
             if (newDays == null)
                 return;
 
+            var reportingBinding = new Binding()
+            {
+               Path = new PropertyPath(ReportingFractionProperty),
+               Source = grid,
+               FallbackValue = DEFAULT_REPORTING,
+               TargetNullValue = DEFAULT_REPORTING
+            };
+
             foreach(var day in newDays.OrderBy(o=>o.UtcDateTime))
             {
-                var binding = CreateDayColumnBinding(day);
+                var binding = CreateDayColumnBinding(day, reportingBinding);
 
                 var col = new DataGridTextColumn()
                 {
@@ -61,18 +89,29 @@ namespace WorkTimer4.TimesheetView
             }
         }
 
-        private static Binding CreateDayColumnBinding(DateTimeOffset day)
+        private static MultiBinding CreateDayColumnBinding(DateTimeOffset day, Binding reportingBinding)
         {
             var dayKey = day.AsAggregationKey();
 
-            var bindingPath = string.Format("{0}[{1}].{2}", nameof(AggregatedTimesheetEntry.AggregatedHours), dayKey, nameof(DateHours.FormattedHours));
-
-            return new Binding(bindingPath)
+            var hoursBindingPath = string.Format("{0}[{1}]", nameof(AggregatedTimesheetEntry.AggregatedHours), dayKey);
+            var hoursBinding = new Binding(hoursBindingPath)
             {
-                //StringFormat = "F3",
-                TargetNullValue = string.Empty,
-                FallbackValue = string.Empty
+                TargetNullValue = 0.0,
+                FallbackValue = 0.0
             };
+
+            var multiBinding = new MultiBinding()
+            {
+                Mode = BindingMode.OneWay,
+                Converter = ReportingConverter,
+                FallbackValue = " - ",
+                TargetNullValue = " - "
+            };
+
+            multiBinding.Bindings.Add(hoursBinding);
+            multiBinding.Bindings.Add(reportingBinding);
+
+            return multiBinding;
         }
     }
 }

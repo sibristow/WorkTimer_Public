@@ -6,7 +6,7 @@ using WorkTimer4.Connectors;
 
 namespace WorkTimer4.TimesheetView
 {
-    internal class DesignTimeTimesheetData : ObservableObject//: TimesheetViewModel
+    internal class DesignTimeTimesheetData : ObservableObject
     {
         private DateTime from;
         private DateTime to;

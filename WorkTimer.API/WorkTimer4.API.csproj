@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
-    <Version>4.4.0</Version>
+    <Version>4.5.0</Version>
     <Product>Work Timer 4 API</Product>
     <Authors>Simon Bristow</Authors>
     <Description>API for Work Timer 4</Description>

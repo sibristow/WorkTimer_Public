@@ -14,6 +14,11 @@ namespace WorkTimer4.ViewModels
         private string? toolTip;
         private Activity? currentActivity;
 
+        /// <summary>
+        /// Gets a value indicating whether the viewmodel has invoked the Application.Shutdown command
+        /// </summary>
+        public bool ShutdownCalled { get; private set; }
+
         public string? ToolTip
         {
             get
@@ -40,7 +45,7 @@ namespace WorkTimer4.ViewModels
             this.applicationConfig = applicationConfig;
             this.SetToolTip(null);
 
-            this.NotifyIconExitCommand = new RelayCommand(this.Exit);
+            this.NotifyIconExitCommand = new RelayCommand<bool>(this.Exit);
             this.ProjectSelectedCommand = new RelayCommand<object?>(this.ProjectSelected);
             this.ViewTimesheetCommand = new RelayCommand(this.ViewTimesheet);
         }
@@ -81,13 +86,17 @@ namespace WorkTimer4.ViewModels
         /// <summary>
         /// Exits the application
         /// </summary>
-        private void Exit()
+        private void Exit(bool invokeShutdown)
         {
             // end any current activity first
             this.EndCurrentActivity(DateTimeOffset.UtcNow);
 
             // then shutdown the app
-            Application.Current.Shutdown();
+            if (invokeShutdown)
+            {
+                this.ShutdownCalled = true;
+                Application.Current.Shutdown();
+            }
         }
 
         /// <summary>

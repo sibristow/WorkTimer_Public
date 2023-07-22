@@ -10,6 +10,8 @@
 
     <UserControl.Resources>
         <local:StringToBrushConverter x:Key="StringToBrushConverter"/>
+
+
     </UserControl.Resources>
 
     <DataGrid     IsReadOnly="True"
@@ -20,13 +22,25 @@
                   HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Auto"
                   ItemsSource="{Binding AggregatedTimesheetData, RelativeSource={RelativeSource AncestorType={x:Type local:AggregatedTimesheetView}}}"
-                  local:DateAggregation.DateList="{Binding AggregatedDays, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:AggregatedTimesheetView}}}">
+                  local:DateAggregation.DateList="{Binding AggregatedDays, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:AggregatedTimesheetView}}}"
+                  local:DateAggregation.ReportingFraction="{Binding ReportingFraction, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:AggregatedTimesheetView}}}">
 
         <DataGrid.Columns>
             <DataGridTemplateColumn MinWidth="20">
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate>
-                        <Rectangle Fill="{Binding Colour, Converter={StaticResource StringToBrushConverter}}" Width="6" Height="16"/>
+                        <ItemsControl ItemsSource="{Binding Colours}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Rectangle Fill="{Binding Path=., Converter={StaticResource StringToBrushConverter}}" Width="6" Height="16" Margin="0,0,2,0"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
@@ -49,8 +63,13 @@
             <Style TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
                 <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="VerticalAlignment" Value="Center"/>
-                <Setter Property="Margin" Value="8"/>
+                <Setter Property="Margin" Value="8,6"/>
                 <Setter Property="BorderThickness" Value="0"/>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsSummaryRow}" Value="True">
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                    </DataTrigger>
+                </Style.Triggers>
             </Style>
         </DataGrid.Resources>
     </DataGrid>
