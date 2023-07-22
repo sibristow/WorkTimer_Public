@@ -104,7 +104,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="{Binding Date}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Text="{Binding Date, StringFormat='{}{0:ddd, dd MMM}'}" VerticalAlignment="Center"/>
 
                         <ItemsControl x:Name="TimeLine" Grid.Column="1" ItemsSource="{Binding Path=Activities}">
                             <ItemsControl.ItemsPanel>

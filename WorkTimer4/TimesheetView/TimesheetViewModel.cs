@@ -14,6 +14,7 @@ namespace WorkTimer4.TimesheetView
         private DateTimeOffset fromFilter;
         private DateTimeOffset toFilter;
         private IEnumerable<TimesheetActivity> recorded;
+        private double reportingFraction;
 
 
         /// <summary>
@@ -75,8 +76,7 @@ namespace WorkTimer4.TimesheetView
 
             private set
             {
-                fromFilter = value;
-                this.OnPropertyChanged(nameof(FromFilter));
+                this.SetProperty(ref this.fromFilter, value);
             }
         }
 
@@ -95,12 +95,13 @@ namespace WorkTimer4.TimesheetView
 
             private set
             {
-                toFilter = value;
-                this.OnPropertyChanged(nameof(ToFilter));
+                this.SetProperty(ref this.toFilter, value);
             }
         }
 
-
+        /// <summary>
+        /// Gets or sets all the recorded activities
+        /// </summary>
         public IEnumerable<TimesheetActivity> Recorded
         {
             get
@@ -110,11 +111,24 @@ namespace WorkTimer4.TimesheetView
 
             set
             {
-                recorded = value;
-                this.OnPropertyChanged(nameof(Recorded));
+                this.SetProperty(ref this.recorded, value);
             }
         }
 
+        /// <summary>
+        /// Gets or sets the fraction of an hour which the total aggregated hours should be rounded to, for reporting
+        /// </summary>
+        public double ReportingFraction
+        {
+            get
+            {
+                return reportingFraction;
+            }
+            set
+            {
+                this.SetProperty(ref this.reportingFraction, value);
+            }
+        }
 
 
 
@@ -123,6 +137,7 @@ namespace WorkTimer4.TimesheetView
             this.To = DateTime.Today;
             this.From = this.To.GetPreviousMonday();
             this.Recorded = recorded ?? Enumerable.Empty<TimesheetActivity>();
+            this.ReportingFraction = DateAggregation.DEFAULT_REPORTING;
         }
 
         internal TimesheetViewModel()
@@ -130,6 +145,7 @@ namespace WorkTimer4.TimesheetView
             this.To = DateTime.Today;
             this.From = this.To.GetPreviousMonday();
             this.Recorded = Enumerable.Empty<TimesheetActivity>();
+            this.ReportingFraction = DateAggregation.DEFAULT_REPORTING;
         }
     }
 }

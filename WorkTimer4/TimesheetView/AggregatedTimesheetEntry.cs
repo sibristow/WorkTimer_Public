@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using WorkTimer4.API.Data;
 using WorkTimer4.Connectors;
@@ -56,13 +57,21 @@ namespace WorkTimer4.TimesheetView
         /// <summary>
         /// Gets the activity colour
         /// </summary>
-        public string? Colour { get; }
+        public HashSet<string> Colours { get; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this row represents summary data
+        /// </summary>
+        public bool IsSummaryRow { get; set; }
 
 
         public AggregatedTimesheetEntry(TimesheetActivity activity)
             : this(activity.ProjectCode, activity.ActivityCode)
         {
-            this.Colour = activity.Colour;
+            if (activity.Colour is not null)
+            {
+                this.Colours.Add(activity.Colour);
+            };
         }
 
         public AggregatedTimesheetEntry(string? projectCode, string? activityCode)
@@ -70,6 +79,7 @@ namespace WorkTimer4.TimesheetView
             this.ProjectCode = projectCode;
             this.ActivityCode = activityCode;
             this.AggregatedHours = new AggregatedHours();
+            this.Colours = new HashSet<string>();
         }
 
 
@@ -88,7 +98,7 @@ namespace WorkTimer4.TimesheetView
         }
 
 
-        public void AddHours(DateTimeOffset start, DateTimeOffset end)
+        public void AddHours(DateTimeOffset start, DateTimeOffset end, TimesheetActivity activity)
         {
             if (start.Date != end.Date)
                 throw new Exception("Start and End must be the same date.");
@@ -96,6 +106,11 @@ namespace WorkTimer4.TimesheetView
             var addedHours = (end - start).TotalHours;
 
             this.AggregatedHours.AddHours(start, addedHours);
+
+            if (activity.Colour is not null)
+            {
+                this.Colours.Add(activity.Colour);
+            }
         }
     }
 }

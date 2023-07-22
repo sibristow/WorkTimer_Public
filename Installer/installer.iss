@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Work Timer"
-#define MyAppVersion "4.3.1"
+#define MyAppVersion "4.5.0"
 #define MyAppExeName "WorkTimer4.exe"
 #define PublishPath ".\publish"
 
@@ -36,7 +36,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: "{#PublishPath}\projects.json"; DestDir: "{userdocs}\WorkTimer"; Flags: ignoreversion
 Source: "{#PublishPath}\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PublishPath}\config.json"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#PublishPath}\Microsoft.Toolkit.Mvvm.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#PublishPath}\CommunityToolkit.Mvvm.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PublishPath}\Microsoft.Xaml.Behaviors.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PublishPath}\PropertyTools.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PublishPath}\PropertyTools.Wpf.dll"; DestDir: "{app}"; Flags: ignoreversion

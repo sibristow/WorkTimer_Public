@@ -22,7 +22,8 @@ namespace WorkTimer4.TimesheetView
         // Using a DependencyProperty as the backing store for FromFilter.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ToFilterProperty = DependencyProperty.Register("ToFilter", typeof(DateTimeOffset), typeof(AggregatedTimesheetView), new PropertyMetadata(default(DateTimeOffset), OnFilter_Changed));
 
-
+        // Using a DependencyProperty as the backing store for RecordingQuantity.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ReportingFractionProperty = DependencyProperty.Register("ReportingFraction", typeof(double), typeof(AggregatedTimesheetView), new PropertyMetadata(0.25));
 
         // Using a DependencyProperty as the backing store for AggregatedTimesheetData.  This enables animation, styling, binding, etc...
         private static readonly DependencyPropertyKey AggregatedTimesheetDataPropertyKey = DependencyProperty.RegisterReadOnly("AggregatedTimesheetData", typeof(IEnumerable<AggregatedTimesheetEntry>), typeof(AggregatedTimesheetView), new PropertyMetadata(null));
@@ -32,6 +33,11 @@ namespace WorkTimer4.TimesheetView
 
 
 
+        public double ReportingFraction
+        {
+            get { return (double)GetValue(ReportingFractionProperty); }
+            set { SetValue(ReportingFractionProperty, value); }
+        }
 
         public DateTimeOffset FromFilter
         {
@@ -133,8 +139,34 @@ namespace WorkTimer4.TimesheetView
                 this.AddRecordedActivity(dateAggregation, dateList, ts);
             }
 
+            this.AddTotal(dateAggregation);
+
             this.AggregatedTimesheetData = dateAggregation;
             this.AggregatedDays = dateList;
+        }
+
+        /// <summary>
+        /// Adds a summary total row to the aggregated data collection
+        /// </summary>
+        /// <param name="dateAggregation"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        private void AddTotal(HashSet<AggregatedTimesheetEntry> dateAggregation)
+        {
+            var row = new AggregatedTimesheetEntry("Summary", "Total") { IsSummaryRow = true };
+            foreach(var entry in dateAggregation)
+            {
+                foreach(var hours in entry.AggregatedHours)
+                {
+                    if (!row.AggregatedHours.ContainsKey(hours.Key))
+                    {
+                        row.AggregatedHours.Add(hours.Key, 0);
+                    }
+
+                    row.AggregatedHours[hours.Key] += hours.Value;
+                }
+            }
+
+            dateAggregation.Add(row);
         }
 
         /// <summary>
@@ -169,10 +201,10 @@ namespace WorkTimer4.TimesheetView
         /// </summary>
         /// <param name="dateAggregation"></param>
         /// <param name="dateList"></param>
-        /// <param name="ts"></param>
+        /// <param name="activity"></param>
         /// <param name="hoursFrom"></param>
         /// <param name="hoursTo"></param>
-        private void AggregateIfFiltered(HashSet<AggregatedTimesheetEntry> dateAggregation, HashSet<DateTimeOffset> dateList, TimesheetActivity ts, DateTimeOffset hoursFrom, DateTimeOffset hoursTo)
+        private void AggregateIfFiltered(HashSet<AggregatedTimesheetEntry> dateAggregation, HashSet<DateTimeOffset> dateList, TimesheetActivity activity, DateTimeOffset hoursFrom, DateTimeOffset hoursTo)
         {
             // if the date is within the filter we want to add the hours to the result
             if (!this.IsInFilter(hoursFrom))
@@ -183,18 +215,18 @@ namespace WorkTimer4.TimesheetView
             dateList.Add(startOfCurrentDay); // hashset so will only add once if the from date is already in the collection
 
             // create a new aggregated activity which we then see if we have already
-            var aggregatedActivity = new AggregatedTimesheetEntry(ts);
+            var aggregatedActivity = new AggregatedTimesheetEntry(activity);
             dateAggregation.TryGetValue(aggregatedActivity, out var found);
 
-            if (found != null)
+            if (found is not null)
             {
                 // already have this activity in the aggregation, so just add this activity's hours
-                found.AddHours(hoursFrom, hoursTo);
+                found.AddHours(hoursFrom, hoursTo, activity);
             }
             else
             {
                 // this is a new activity, so set the hours and add it to the dates
-                aggregatedActivity.AddHours(hoursFrom, hoursTo);
+                aggregatedActivity.AddHours(hoursFrom, hoursTo, activity);
                 dateAggregation.Add(aggregatedActivity);
             }
         }

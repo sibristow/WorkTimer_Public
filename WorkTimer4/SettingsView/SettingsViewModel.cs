@@ -25,6 +25,7 @@ namespace WorkTimer4.SettingsView
         private ITimesheetConnector? selectedTimesheetConnector;
         private Project? selectedProject;
         private ISettingsPage? selectedPage;
+        private SettingsProjectGroup? selectedProjectGroup;
 
         public event EventHandler<EventArgs>? SettingsApplied;
 
@@ -120,6 +121,19 @@ namespace WorkTimer4.SettingsView
 
         public ObservableCollection<SettingsProjectGroup> ProjectList { get; }
 
+
+        public SettingsProjectGroup? SelectedProjectGroup
+        {
+            get
+            {
+                return selectedProjectGroup;
+            }
+            set
+            {
+                this.SetProperty(ref selectedProjectGroup, value);
+            }
+        }
+
         public Project? SelectedProject
         {
             get
@@ -128,8 +142,7 @@ namespace WorkTimer4.SettingsView
             }
             set
             {
-                selectedProject = value;
-                this.OnPropertyChanged(nameof(SelectedProject));
+                this.SetProperty(ref selectedProject, value);
             }
         }
 
@@ -161,13 +174,14 @@ namespace WorkTimer4.SettingsView
         /// </summary>
         private void OnAddProject()
         {
-            var currentGroup = this.selectedProject?.Group ?? null;
+            var currentGroup = this.SelectedProjectGroup?.Name;
 
             var project = Project.CreateDefault(currentGroup);
 
-            this.AddProjectToGroup(project);
+            var group = this.AddProjectToGroup(project);
 
             this.SelectedProject = project;
+            this.SelectedProjectGroup = group;
         }
 
         /// <summary>
@@ -191,7 +205,18 @@ namespace WorkTimer4.SettingsView
         {
             var args = obj as RoutedPropertyChangedEventArgs<object>;
 
-            this.SelectedProject = args?.NewValue as Project;
+            if (args?.NewValue is Project p)
+            {
+                this.SelectedProject = p;
+                this.SelectedProjectGroup = this.ProjectList.FirstOrDefault(pg => pg.Name.Equals(p.Group));
+
+                return;
+            }
+
+            if (args?.NewValue is SettingsProjectGroup group)
+            {
+                this.SelectedProjectGroup = group;
+            }
         }
 
         /// <summary>
@@ -260,7 +285,7 @@ namespace WorkTimer4.SettingsView
                 // raise the event which will close the form
                 this.SettingsApplied?.Invoke(this, EventArgs.Empty);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 var logFile = ExceptionLogger.LogException(ex);
 
@@ -375,7 +400,7 @@ namespace WorkTimer4.SettingsView
             }
         }
 
-        private void AddProjectToGroup(Project project)
+        private SettingsProjectGroup AddProjectToGroup(Project project)
         {
             var newGroupName = project.Group;
 
@@ -385,15 +410,15 @@ namespace WorkTimer4.SettingsView
             }
 
             var newGroup = this.ProjectList.FirstOrDefault(g => g.Name.Equals(newGroupName));
-            if (newGroup != null)
+            if (newGroup is null)
             {
-                newGroup.Projects.Add(project);
-                return;
+                // create a new group
+                newGroup = new SettingsProjectGroup(newGroupName);
+                this.ProjectList.Add(newGroup);
             }
 
-            // create a new group
-            newGroup = new SettingsProjectGroup(newGroupName, new List<Project>() { project });
-            this.ProjectList.Add(newGroup);
+            newGroup.Projects.Add(project);
+            return newGroup;
         }
 
 

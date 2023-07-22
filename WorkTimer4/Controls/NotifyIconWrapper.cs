@@ -197,7 +197,7 @@ namespace WorkTimer4.Controls
             contextMenu.Items.Add(new ToolStripSeparator());
 
 
-            var pauseItem = new ToolStripMenuItem("Stop Activity")
+            var pauseItem = new ToolStripMenuItem("Stop Recording")
             {
                 Tag = FIXED_MENU_ITEM,
                 Image = Assets.WinFormsAssets.GetResourceImage("./Assets/control_pause.png"),

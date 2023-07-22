@@ -22,6 +22,12 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="SourceUpdated">
+                    <i:InvokeCommandAction Command="{Binding SourceUpdatedCommand}" PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+
             <TreeView x:Name="treeView" Grid.Column="0" Grid.RowSpan="1" ItemsSource="{Binding ProjectList}" BorderThickness="1" BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer1BorderBrush}}" Margin="0" Padding="4">
                 <TreeView.Resources>
                     <DataTemplate DataType="{x:Type api:Project}">

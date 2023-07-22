@@ -5,6 +5,7 @@ using System.IO;
 using System.Text.Json;
 using WorkTimer4.API.Connectors;
 using WorkTimer4.API.Data;
+using WorkTimer4.TimesheetView;
 
 namespace WorkTimer4.Connectors
 {
@@ -16,10 +17,16 @@ namespace WorkTimer4.Connectors
     {
         public override string Name { get { return "Default JSON Connector"; } }
 
+        /// <summary>
+        /// Gets or sets the fraction of an hour which the total aggregated hours should be rounded to, for reporting
+        /// </summary>
+        public double ReportingFraction { get; set; }
+
 
         public DefaultTimesheetConnector()
         {
             this.DataFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "WorkTimer", "timesheet.json");
+            this.ReportingFraction = DateAggregation.DEFAULT_REPORTING;
         }
 
         public override void ViewTimesheet(Activity? currentActivity)
@@ -35,8 +42,8 @@ namespace WorkTimer4.Connectors
                 recorded.Add(new TimesheetActivity(currentActivity));
             }
 
-            var vm = new TimesheetView.TimesheetViewModel(recorded);
-            var window = new TimesheetView.TimesheetViewer() { DataContext = vm };
+            var vm = new TimesheetViewModel(recorded) {  ReportingFraction = this.ReportingFraction };
+            var window = new TimesheetViewer() { DataContext = vm };
             window.ShowDialog();
         }
 

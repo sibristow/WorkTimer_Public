@@ -36,7 +36,20 @@ namespace WorkTimer4.SettingsView
         public ObservableCollection<Project> Projects { get; }
 
 
+
+        public SettingsProjectGroup(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException($"'{nameof(name)}' cannot be null or whitespace", nameof(name));
+            }
+
+            this.name = name;
+            this.Projects = new ObservableCollection<Project>();
+        }
+
         public SettingsProjectGroup(string name, IEnumerable<Project> orderedEnumerables)
+            : this(name)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -47,12 +60,12 @@ namespace WorkTimer4.SettingsView
             this.Projects = new ObservableCollection<Project>(orderedEnumerables);
         }
 
-
         public SettingsProjectGroup(ProjectGroup projectGroup)
             : this (projectGroup.Name, projectGroup.Projects.Select(p => Project.Copy(p)))
         {
         }
 
+       
 
         public override string? ToString()
         {
