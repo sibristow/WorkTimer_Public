@@ -10,8 +10,6 @@
 
     <UserControl.Resources>
         <local:StringToBrushConverter x:Key="StringToBrushConverter"/>
-
-
     </UserControl.Resources>
 
     <DataGrid     IsReadOnly="True"
@@ -24,6 +22,7 @@
                   ItemsSource="{Binding AggregatedTimesheetData, RelativeSource={RelativeSource AncestorType={x:Type local:AggregatedTimesheetView}}}"
                   local:DateAggregation.DateList="{Binding AggregatedDays, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:AggregatedTimesheetView}}}"
                   local:DateAggregation.ReportingFraction="{Binding ReportingFraction, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:AggregatedTimesheetView}}}">
+
 
         <DataGrid.Columns>
             <DataGridTemplateColumn MinWidth="20">
@@ -45,7 +44,7 @@
                 </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
             <DataGridTextColumn Header="Project" Binding="{Binding ProjectCode}" MinWidth="100" />
-            <DataGridTextColumn Header="Activity" Binding="{Binding ActivityCode}"  MinWidth="100"/>
+            <DataGridTextColumn Header="Activity" Binding="{Binding ActivityCode}" MinWidth="100"/>
         </DataGrid.Columns>
 
         <DataGrid.Resources>

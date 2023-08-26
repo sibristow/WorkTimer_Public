@@ -79,7 +79,7 @@ namespace WorkTimer4.API.Connectors
         {
             this.RollFile(activity);
 
-            if (this.currentRollingFile == null)
+            if (this.currentRollingFile is null)
             {
                 throw new ConnectorException("Timesheet connector output file is not specified");
             }
@@ -111,7 +111,7 @@ namespace WorkTimer4.API.Connectors
         /// <returns>the rolled data file name</returns>
         private void RollFile(Activity activity)
         {
-            if (this.nextTimestamp == null || activity.Start < this.nextTimestamp)
+            if (this.nextTimestamp is null || activity.Start < this.nextTimestamp)
             {
                 // never roll, or not reached next timestamp point
                 // so leave with current rolling file
@@ -135,7 +135,7 @@ namespace WorkTimer4.API.Connectors
         private string? GetFilename(DateTimeOffset? timestamp)
         {
             // never roll, or no timestamp provided, so just use the data file
-            if (timestamp == null || this.RollingInterval == RollingInterval.Never)
+            if (timestamp is null || this.RollingInterval == RollingInterval.Never)
                 return this.DataFile;
 
             // get the date format for the rolling interval

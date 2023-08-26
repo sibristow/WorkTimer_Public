@@ -26,7 +26,7 @@ namespace WorkTimer4.Assets
         {
             BitmapImage bitmap = new BitmapImage();
 
-            if (winImage == null)
+            if (winImage is null)
                 return bitmap;
 
             using (MemoryStream stream = new MemoryStream())

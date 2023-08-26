@@ -11,11 +11,11 @@ namespace WorkTimer4
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value == null)
+            if (value is null)
                 return System.Windows.DependencyProperty.UnsetValue;
 
             var winImage = Assets.WinFormsAssets.FromEncodedImage(value?.ToString());
-            if (winImage == null)
+            if (winImage is null)
                 return System.Windows.DependencyProperty.UnsetValue;
 
             return Assets.WPFAssets.FromImage(winImage);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Windows;
 using System.Windows.Data;
 
 namespace WorkTimer4.TimesheetView
@@ -11,8 +12,13 @@ namespace WorkTimer4.TimesheetView
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
+            if (values[0] == DependencyProperty.UnsetValue)
+            {
+                return string.Empty;
+            }
+
             var hours = (double)values[0];
-            var reportingFraction = (double)values[1];
+            var reportingFraction = Math.Max(0.01, (double)values[1]);
             var inv = 1 / reportingFraction;
             var reportedHours = Math.Round(hours * inv, MidpointRounding.ToEven) * reportingFraction;
 

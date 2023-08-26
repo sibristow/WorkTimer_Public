@@ -145,7 +145,7 @@ namespace WorkTimer4.API.Data
 
         public override bool Equals(object? obj)
         {
-            if (obj == null || obj is not Project proj)
+            if (obj is null || obj is not Project proj)
                 return false;
 
             return this.Equals(proj);
@@ -153,7 +153,7 @@ namespace WorkTimer4.API.Data
 
         public bool Equals(Project? other)
         {
-            return (other != null) && Guid.Equals(this.Identifier, other.Identifier);
+            return (other is not null) && Guid.Equals(this.Identifier, other.Identifier);
         }
 
         public override int GetHashCode()
@@ -178,7 +178,7 @@ namespace WorkTimer4.API.Data
 
         public static Project Copy(Project sourceProject)
         {
-            if (sourceProject == null)
+            if (sourceProject is null)
             {
                 return Project.CreateDefault(null);
             }

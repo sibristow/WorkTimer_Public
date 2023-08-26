@@ -38,15 +38,6 @@ namespace WorkTimer4.SettingsView
             {
                 value ??= this.Pages.FirstOrDefault();
 
-                //if (value != null && !value.IsLoading)
-                //{
-                //    Task.Run(() =>
-                //    {
-                //        value.IsLoading = true;
-                //        value.Init();
-                //    }).ContinueWith((task) => value.IsLoading = false);
-                //}
-
                 SetProperty(ref this.selectedPage, value);
             }
         }
@@ -105,12 +96,12 @@ namespace WorkTimer4.SettingsView
             }
             set
             {
-                if (this.selectedProjectConnector != null)
+                if (this.selectedProjectConnector is not null)
                     this.selectedProjectConnector.ProjectReloadRequest -= this.SelectedProjectConnector_ProjectReloadRequest;
 
                 this.selectedProjectConnector = value;
 
-                if (this.selectedProjectConnector != null)
+                if (this.selectedProjectConnector is not null)
                     this.selectedProjectConnector.ProjectReloadRequest += this.SelectedProjectConnector_ProjectReloadRequest;
 
                 this.OnPropertyChanged(nameof(SelectedProjectConnector));
@@ -189,7 +180,7 @@ namespace WorkTimer4.SettingsView
         /// </summary>
         private void OnDeleteProject()
         {
-            if (this.SelectedProject == null)
+            if (this.SelectedProject is null)
                 return;
 
             this.RemoveProjectFromGroup(this.SelectedProject);
@@ -227,11 +218,11 @@ namespace WorkTimer4.SettingsView
         {
             var args = obj as DataTransferEventArgs;
 
-            if (args == null)
+            if (args is null)
                 return;
 
             var project = ((FrameworkElement)args.TargetObject).DataContext as Project;
-            if (project != null)
+            if (project is not null)
             {
                 this.ProjectUpdated(project);
             }
@@ -242,20 +233,20 @@ namespace WorkTimer4.SettingsView
         /// </summary>
         private void GetCurrentSettings()
         {
-            if (this.applicationConfig.ProjectConnector != null)
+            if (this.applicationConfig.ProjectConnector is not null)
             {
                 this.selectedProjectConnector = ApplicationConfig.CreateProjectConnector(this.applicationConfig.ProjectConnector);
 
-                if (this.selectedProjectConnector != null)
+                if (this.selectedProjectConnector is not null)
                     this.selectedProjectConnector.ProjectReloadRequest += this.SelectedProjectConnector_ProjectReloadRequest;
             }
 
-            if (this.applicationConfig.TimesheetConnector != null)
+            if (this.applicationConfig.TimesheetConnector is not null)
             {
                 this.selectedTimesheetConnector = ApplicationConfig.CreateTimesheetConnector(this.applicationConfig.TimesheetConnector);
             }
 
-            if (this.applicationConfig.ProjectGroups != null)
+            if (this.applicationConfig.ProjectGroups is not null)
             {
                 foreach (var projectGroup in this.applicationConfig.ProjectGroups)
                 {
@@ -300,7 +291,7 @@ namespace WorkTimer4.SettingsView
         /// <param name="obj"></param>
         private void OnClearIcon(Project? obj)
         {
-            if (obj == null)
+            if (obj is null)
                 return;
 
             obj.Icon = null;
@@ -313,7 +304,7 @@ namespace WorkTimer4.SettingsView
         private void OnOpenIcon(Project? obj)
         {
             var project = obj as Project;
-            if (project == null)
+            if (project is null)
                 return;
 
             var dialog = new OpenFileDialog()
@@ -386,7 +377,7 @@ namespace WorkTimer4.SettingsView
         private void RemoveProjectFromGroup(Project project)
         {
             var currentGroup = this.FindGroupForProject(project);
-            if (currentGroup == null)
+            if (currentGroup is null)
                 return;
 
             // remove the project from it's group
@@ -425,7 +416,7 @@ namespace WorkTimer4.SettingsView
 
         private void SelectedProjectConnector_ProjectReloadRequest(object? sender, EventArgs e)
         {
-            if (this.SelectedProjectConnector == null)
+            if (this.SelectedProjectConnector is null)
                 return;
 
             this.SelectedProjectConnector.GetProjects();

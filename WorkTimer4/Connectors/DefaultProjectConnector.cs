@@ -44,10 +44,10 @@ namespace WorkTimer4.Connectors
 
 
             // if one is null return the other
-            if (projectList == null && legacyList != null)
+            if (projectList is null && legacyList is not null)
                 return legacyList;
 
-            if (projectList != null && legacyList == null)
+            if (projectList is not null && legacyList is null)
                 return projectList;
 
 
@@ -69,7 +69,7 @@ namespace WorkTimer4.Connectors
         {
             var projectList = JsonSerializer.Deserialize<ProjectsData>(text, JsonSerialisation.SerialiserOptions);
 
-            if (projectList == null)
+            if (projectList is null)
             {
                 projectGroups = null;
                 return false;
@@ -92,7 +92,7 @@ namespace WorkTimer4.Connectors
 
             var dictionary = new Dictionary<string, List<Project>>();
 
-            if (projectList == null)
+            if (projectList is null)
             {
                 projectGroups = null;
                 return false;

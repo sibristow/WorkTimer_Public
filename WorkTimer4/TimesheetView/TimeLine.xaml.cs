@@ -110,6 +110,9 @@ namespace WorkTimer4.TimesheetView
 
         private void ActivitiesChanged(object? sender, NotifyCollectionChangedEventArgs? e)
         {
+            if (e is null)
+                return;
+
             if (e.Action == NotifyCollectionChangedAction.Reset)
             {
                 this.TimeLineDays.Clear();

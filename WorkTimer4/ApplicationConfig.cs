@@ -36,6 +36,8 @@ namespace WorkTimer4
         public ObservableCollection<ProjectGroup> ProjectGroups { get; set; }
 
 
+        public bool NotifyOnUnlock { get; set; }
+
 
         internal ApplicationConfig()
         {
@@ -50,7 +52,7 @@ namespace WorkTimer4
             var configText = File.ReadAllText(CONFIG_FILE);
             var appConfigJson = JsonSerializer.Deserialize<ApplicationConfigJson>(configText, JsonSerialisation.SerialiserOptions);
 
-            if (appConfigJson == null)
+            if (appConfigJson is null)
             {
                 return config;
             }
@@ -64,12 +66,14 @@ namespace WorkTimer4
             // create a timesheet provider
             config.TimesheetConnector = CreateTimesheetConnector(appConfigJson);
 
+            config.NotifyOnUnlock = appConfigJson.NotifyOnUnlock;
+
             return config;
         }
 
         public static void Save(ApplicationConfig config)
         {
-            if (config == null)
+            if (config is null)
                 throw new ArgumentNullException("Cannot save null config");
 
             var configJson = new ApplicationConfigJson()
@@ -77,7 +81,8 @@ namespace WorkTimer4
                 ProjectConnector = config.ProjectConnector?.GetType().FullName,
                 ProjectConnectorOptions = GetOptions(config.ProjectConnector),
                 TimesheetConnector = config.TimesheetConnector?.GetType().FullName,
-                TimesheetConnectorOptions = GetOptions(config.TimesheetConnector)
+                TimesheetConnectorOptions = GetOptions(config.TimesheetConnector),
+                NotifyOnUnlock = config.NotifyOnUnlock
             };
 
             var serialised = JsonSerializer.Serialize(configJson, JsonSerialisation.SerialiserOptions);
@@ -87,7 +92,7 @@ namespace WorkTimer4
 
         internal static IProjectConnector? CreateProjectConnector(IProjectConnector sourceConnector)
         {
-            if (sourceConnector == null)
+            if (sourceConnector is null)
                 return null;
 
             return CreateConnector(sourceConnector);
@@ -95,7 +100,7 @@ namespace WorkTimer4
 
         internal static ITimesheetConnector? CreateTimesheetConnector(ITimesheetConnector sourceConnector)
         {
-            if (sourceConnector == null)
+            if (sourceConnector is null)
                 return null;
 
             return CreateConnector(sourceConnector);
@@ -104,7 +109,7 @@ namespace WorkTimer4
 
         private static IProjectConnector CreateProjectConnector(ApplicationConfigJson? appConfigJson)
         {
-            if (appConfigJson == null)
+            if (appConfigJson is null)
             {
                 throw new ArgumentNullException(nameof(appConfigJson));
             }
@@ -116,7 +121,7 @@ namespace WorkTimer4
 
         private static ITimesheetConnector CreateTimesheetConnector(ApplicationConfigJson? appConfigJson)
         {
-            if (appConfigJson == null)
+            if (appConfigJson is null)
             {
                 throw new ArgumentNullException(nameof(appConfigJson));
             }
@@ -144,7 +149,7 @@ namespace WorkTimer4
                 type = Type.GetType(connectorTypeString);
             }
 
-            if (type == null || !type.IsAssignableTo(typeof(TConnector)))
+            if (type is null || !type.IsAssignableTo(typeof(TConnector)))
             {
                 type = typeof(TDefault);
             }
@@ -152,7 +157,7 @@ namespace WorkTimer4
             // create an instance of the required connector
             var obj = Activator.CreateInstance(type);
 
-            if (obj == null)
+            if (obj is null)
             {
                 throw new Exception($"Cannot create instance of {typeof(TConnector)}");
             }
@@ -163,7 +168,7 @@ namespace WorkTimer4
             foreach (var providerOption in connectorOptions)
             {
                 var propInfo = type.GetProperty(providerOption.Key, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                if (propInfo == null || propInfo.SetMethod == null)
+                if (propInfo is null || propInfo.SetMethod is null)
                     continue;
 
                 var jsonElement = (JsonElement?)providerOption.Value;
@@ -183,7 +188,7 @@ namespace WorkTimer4
         /// <returns></returns>
         private static TConnector? CreateConnector<TConnector>(TConnector sourceConnector)
         {
-            if (sourceConnector == null)
+            if (sourceConnector is null)
                 return default(TConnector);
 
             var type = sourceConnector.GetType();
@@ -191,7 +196,7 @@ namespace WorkTimer4
             // create an instance of the required connector
             var obj = Activator.CreateInstance(type);
 
-            if (obj == null)
+            if (obj is null)
             {
                 throw new Exception($"Cannot create instance of {typeof(TConnector)}");
             }
@@ -202,7 +207,7 @@ namespace WorkTimer4
             var sourceProps = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             foreach(var sourceProp in sourceProps)
             {
-                if (sourceProp == null || sourceProp.GetMethod == null || sourceProp.SetMethod == null)
+                if (sourceProp is null || sourceProp.GetMethod is null || sourceProp.SetMethod is null)
                     continue;
 
                 var sourceVal = sourceProp.GetMethod.Invoke(sourceConnector, null);
@@ -216,13 +221,13 @@ namespace WorkTimer4
         {
             var dictionary = new Dictionary<string, object?>();
 
-            if (connector == null)
+            if (connector is null)
                 return dictionary;
 
             var sourceProps = connector.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
             foreach (var sourceProp in sourceProps)
             {
-                if (sourceProp == null || sourceProp.GetMethod == null || sourceProp.SetMethod == null)
+                if (sourceProp is null || sourceProp.GetMethod is null || sourceProp.SetMethod is null)
                     continue;
 
                 object? sourceVal = sourceProp.GetMethod.Invoke(connector, null);
@@ -238,14 +243,14 @@ namespace WorkTimer4
         {
             this.ProjectGroups.Clear();
 
-            if (this.ProjectConnector == null)
+            if (this.ProjectConnector is null)
             {
                 return;
             }
 
             var projects = this.ProjectConnector.GetProjects();
 
-            if (projects == null)
+            if (projects is null)
             {
                 return;
             }
@@ -258,7 +263,7 @@ namespace WorkTimer4
 
         private void AttachProjectConnectorEvents()
         {
-            if (this.ProjectConnector == null)
+            if (this.ProjectConnector is null)
                 return;
 
             this.ProjectConnector.ProjectReloadRequest += this.ProjectConnector_ProjectReloadRequest;
@@ -266,7 +271,7 @@ namespace WorkTimer4
 
         private void DetachProjectConnectorEvents()
         {
-            if (this.ProjectConnector == null)
+            if (this.ProjectConnector is null)
                 return;
 
             this.ProjectConnector.ProjectReloadRequest -= this.ProjectConnector_ProjectReloadRequest;

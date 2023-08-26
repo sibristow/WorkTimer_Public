@@ -5,6 +5,7 @@ using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using WorkTimer4.API.Data;
+using WorkTimer4.Assets;
 
 namespace WorkTimer4.ViewModels
 {
@@ -13,11 +14,14 @@ namespace WorkTimer4.ViewModels
         private readonly ApplicationConfig applicationConfig;
         private string? toolTip;
         private Activity? currentActivity;
+        private string? activeIcon;
 
         /// <summary>
         /// Gets a value indicating whether the viewmodel has invoked the Application.Shutdown command
         /// </summary>
         public bool ShutdownCalled { get; private set; }
+
+        public string CurrentActivityName { get { return this.currentActivity?.Project?.Name ?? string.Empty; } }
 
         public string? ToolTip
         {
@@ -28,6 +32,18 @@ namespace WorkTimer4.ViewModels
             set
             {
                 this.SetProperty(ref this.toolTip, value);
+            }
+        }
+
+        public string? ActiveIcon
+        {
+            get
+            {
+                return activeIcon;
+            }
+            private set
+            {
+                this.SetProperty(ref this.activeIcon, value);
             }
         }
 
@@ -42,7 +58,9 @@ namespace WorkTimer4.ViewModels
 
         public NotifyIconWrapperViewModel(ApplicationConfig applicationConfig)
         {
+            ArgumentNullException.ThrowIfNull(applicationConfig);
             this.applicationConfig = applicationConfig;
+
             this.SetToolTip(null);
 
             this.NotifyIconExitCommand = new RelayCommand<bool>(this.Exit);
@@ -77,7 +95,7 @@ namespace WorkTimer4.ViewModels
             this.EndCurrentActivity(utcDate);
 
             // start the new activity, if one has been selected
-            if (e != null && e.Project != null && !e.IsStopped)
+            if (e is not null && e.Project is not null && !e.IsStopped)
             {
                 this.StartNewActivity(e.Project, utcDate);
             }
@@ -104,7 +122,7 @@ namespace WorkTimer4.ViewModels
         /// </summary>
         private void ViewTimesheet()
         {
-            if (this.applicationConfig.TimesheetConnector != null)
+            if (this.applicationConfig.TimesheetConnector is not null)
             {
                 this.applicationConfig.TimesheetConnector.ViewTimesheet(this.currentActivity);
             }
@@ -120,6 +138,7 @@ namespace WorkTimer4.ViewModels
 
             this.currentActivity = new Activity(project, utcStart);
             this.SetToolTip(project.ToString());
+            this.ActiveIcon = project.Icon ?? WinFormsAssets.CLOCK_RED;
             this.IsActive = true;
         }
 
@@ -129,14 +148,14 @@ namespace WorkTimer4.ViewModels
         /// <param name="utcEnd"></param>
         private void EndCurrentActivity(DateTimeOffset utcEnd)
         {
-            if (this.currentActivity == null)
+            if (this.currentActivity is null)
             {
                 return;
             }
 
             try
             {
-                if (this.applicationConfig.TimesheetConnector != null)
+                if (this.applicationConfig.TimesheetConnector is not null)
                 {
                     this.currentActivity.End = utcEnd;
                     this.applicationConfig.TimesheetConnector.RecordActivity(this.currentActivity);

@@ -24,7 +24,6 @@ namespace WorkTimer4
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
             FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
-            //var companyName = fvi.CompanyName;
             ProductName = fvi.ProductName;
             ProductVersion = fvi.ProductVersion;
         }

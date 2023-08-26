@@ -35,7 +35,7 @@ namespace WorkTimer4.Connectors
             var recorded = this.ReadFile(this.currentRollingFile);
 
             // include the current activity (if there is one)
-            if (currentActivity != null)
+            if (currentActivity is not null)
             {
                 currentActivity.End = DateTimeOffset.UtcNow;
 
@@ -65,7 +65,7 @@ namespace WorkTimer4.Connectors
 
         private List<TimesheetActivity> ReadFile(string? file)
         {
-            if (file == null || !File.Exists(file))
+            if (file is null || !File.Exists(file))
             {
                 return new List<TimesheetActivity>();
             }
