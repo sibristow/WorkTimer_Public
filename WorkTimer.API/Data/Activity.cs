@@ -40,7 +40,7 @@ namespace WorkTimer4.API.Data
 
         public bool Equals(Activity? other)
         {
-            return other != null &&
+            return other is not null &&
                    this.Start == other.Start &&
                    this.End == other.End &&
                    this.Project.Equals(other.Project);

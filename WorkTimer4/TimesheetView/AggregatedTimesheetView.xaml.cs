@@ -124,7 +124,7 @@ namespace WorkTimer4.TimesheetView
         /// <param name="recorded"></param>
         private void AggregateData()
         {
-            if (this.TimesheetActivities == null || !this.TimesheetActivities.Any())
+            if (this.TimesheetActivities is null || !this.TimesheetActivities.Any())
             {
                 this.AggregatedTimesheetData = Enumerable.Empty<AggregatedTimesheetEntry>();
                 this.AggregatedDays = Enumerable.Empty<DateTimeOffset>();

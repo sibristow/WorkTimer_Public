@@ -4,6 +4,7 @@
                     xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2"
                     xmlns:pt="http://propertytools.org/wpf"
                     xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
+                    xmlns:assets="clr-namespace:WorkTimer4.Assets"
                     xmlns:local="clr-namespace:WorkTimer4">
 
     <!-- the application's NotifyIcon - started from App.xaml.cs. Declares its own view model. -->
@@ -13,7 +14,7 @@
                 <Setter Property="IconSource" Value="./Assets/clock_blue.ico"/>
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding IsActive}" Value="True">
-                        <Setter Property="IconSource" Value="./Assets/clock_red.ico"/>
+                        <Setter Property="IconSource" Value="{Binding ActiveIcon}"/>
                     </DataTrigger>
                 </Style.Triggers>
             </Style>

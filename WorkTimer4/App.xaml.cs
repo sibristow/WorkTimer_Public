@@ -21,6 +21,7 @@ namespace WorkTimer4
             base.OnStartup(e);
 
             SystemEvents.SessionEnding += this.SystemEvents_SessionEnding;
+            SystemEvents.SessionSwitch += this.SystemEvents_SessionSwitch;
 
             // fix date formatting
             FrameworkElement.LanguageProperty.OverrideMetadata(typeof(FrameworkElement), new FrameworkPropertyMetadata(System.Windows.Markup.XmlLanguage.GetLanguage(System.Globalization.CultureInfo.CurrentCulture.IetfLanguageTag)));
@@ -57,9 +58,23 @@ namespace WorkTimer4
                 this.notifyIcon.Dispose(); //the icon would clean up automatically, but this is cleaner
             }
 
+            SystemEvents.SessionSwitch -= this.SystemEvents_SessionSwitch;
             SystemEvents.SessionEnding -= this.SystemEvents_SessionEnding;
 
             base.OnExit(e);
+        }
+
+        private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
+        {
+            if (e.Reason != SessionSwitchReason.SessionUnlock)
+            {
+                return;
+            }
+
+            if (this.vm is not null && this.vm.IsActive && (this.config?.NotifyOnUnlock ?? true))
+            {
+                DialogWindow.Show(AssemblyInfo.ProductName, "The current activity is:", Environment.NewLine, Environment.NewLine, $"\b{this.vm.CurrentActivityName}");
+            }
         }
 
         private void SystemEvents_SessionEnding(object sender, SessionEndingEventArgs e)

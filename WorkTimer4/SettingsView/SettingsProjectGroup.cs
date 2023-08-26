@@ -79,7 +79,7 @@ namespace WorkTimer4.SettingsView
 
         public bool Equals(SettingsProjectGroup? other)
         {
-            return other != null &&
+            return other is not null &&
                    EqualityComparer<string>.Default.Equals(this.Name, other.Name);
         }
 

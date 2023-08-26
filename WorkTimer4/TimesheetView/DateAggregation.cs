@@ -35,6 +35,23 @@ namespace WorkTimer4.TimesheetView
 
 
 
+
+        public static Style GetHeaderStyle(DependencyObject obj)
+        {
+            return (Style)obj.GetValue(HeaderStyleProperty);
+        }
+
+        public static void SetHeaderStyle(DependencyObject obj, Style value)
+        {
+            obj.SetValue(HeaderStyleProperty, value);
+        }
+
+        // Using a DependencyProperty as the backing store for HeaderStyle.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty HeaderStyleProperty = DependencyProperty.RegisterAttached("HeaderStyle", typeof(Style), typeof(DateAggregation), new PropertyMetadata(null));
+
+
+
+
         public static double GetReportingFraction(DependencyObject obj)
         {
             return (double)obj.GetValue(ReportingFractionProperty);
@@ -62,8 +79,10 @@ namespace WorkTimer4.TimesheetView
 
             var newDays = e.NewValue as IEnumerable<DateTimeOffset>;
 
-            if (newDays == null)
+            if (newDays is null)
                 return;
+
+            var headerStyle = GetHeaderStyle(grid);
 
             var reportingBinding = new Binding()
             {
@@ -84,6 +103,9 @@ namespace WorkTimer4.TimesheetView
                     HeaderStringFormat = DateAggregation.HEADER_DATE_FORMAT,
                     MinWidth = 100
                 };
+
+                if (headerStyle is not null)
+                    col.HeaderStyle = headerStyle;
 
                 grid.Columns.Add(col);
             }

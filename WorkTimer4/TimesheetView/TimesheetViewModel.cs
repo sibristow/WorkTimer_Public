@@ -134,18 +134,18 @@ namespace WorkTimer4.TimesheetView
 
         public TimesheetViewModel(List<TimesheetActivity> recorded)
         {
-            this.To = DateTime.Today;
-            this.From = this.To.GetPreviousMonday();
-            this.Recorded = recorded ?? Enumerable.Empty<TimesheetActivity>();
-            this.ReportingFraction = DateAggregation.DEFAULT_REPORTING;
+            this.to = DateTime.Today;
+            this.from = this.To.GetPreviousMonday();
+            this.recorded = recorded ?? Enumerable.Empty<TimesheetActivity>();
+            this.reportingFraction = DateAggregation.DEFAULT_REPORTING;
         }
 
         internal TimesheetViewModel()
         {
-            this.To = DateTime.Today;
-            this.From = this.To.GetPreviousMonday();
-            this.Recorded = Enumerable.Empty<TimesheetActivity>();
-            this.ReportingFraction = DateAggregation.DEFAULT_REPORTING;
+            this.to = DateTime.Today;
+            this.from = this.To.GetPreviousMonday();
+            this.recorded = Enumerable.Empty<TimesheetActivity>();
+            this.reportingFraction = DateAggregation.DEFAULT_REPORTING;
         }
     }
 }

@@ -90,7 +90,7 @@ namespace WorkTimer4.API.Connectors
         {
             var projectsData = this.Serialise(projectGroups);
 
-            if (this.ReloadOnChanges && this.watcher != null)
+            if (this.ReloadOnChanges && this.watcher is not null)
             {
                 // pause watching when we are writing to the file
                 this.watcher.EnableRaisingEvents = false;
@@ -113,7 +113,7 @@ namespace WorkTimer4.API.Connectors
             // write the project data
             File.WriteAllText(this.DataFile, text);
 
-            if (this.ReloadOnChanges && this.watcher != null)
+            if (this.ReloadOnChanges && this.watcher is not null)
             {
                 // resume watching when we are writing to the file
                 this.watcher.EnableRaisingEvents = true;
@@ -174,7 +174,7 @@ namespace WorkTimer4.API.Connectors
             if (string.IsNullOrWhiteSpace(this.DataFile) || !Directory.Exists(this.DataFile))
                 return;
 
-            if (this.watcher == null)
+            if (this.watcher is null)
             {
                 this.watcher = new FileSystemWatcher()
                 {
@@ -194,7 +194,7 @@ namespace WorkTimer4.API.Connectors
         /// </summary>
         private void DisableWatcher()
         {
-            if (this.watcher == null)
+            if (this.watcher is null)
                 return;
 
             this.watcher.EnableRaisingEvents = false;

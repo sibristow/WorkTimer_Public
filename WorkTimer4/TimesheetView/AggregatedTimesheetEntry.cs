@@ -21,7 +21,7 @@ namespace WorkTimer4.TimesheetView
         {
             get
             {
-                return projectCode ?? "(undefined)";
+                return projectCode;
             }
             set
             {
@@ -37,7 +37,7 @@ namespace WorkTimer4.TimesheetView
         {
             get
             {
-                return activityCode ?? "(undefined)";
+                return activityCode;
             }
             set
             {

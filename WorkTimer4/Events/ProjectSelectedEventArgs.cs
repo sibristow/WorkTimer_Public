@@ -5,7 +5,7 @@ namespace WorkTimer4.Events
 {
     public class ProjectSelectedEventArgs : EventArgs
     {
-        public bool IsStopped { get { return this.Project == null; } }
+        public bool IsStopped { get { return this.Project is null; } }
 
         public Project? Project { get; }
 

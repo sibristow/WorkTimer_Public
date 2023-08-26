@@ -8,7 +8,7 @@ namespace WorkTimer4
     {
         public static string LogException(Exception exception)
         {
-            if (exception == null)
+            if (exception is null)
                 return string.Empty;
 
             var file = string.Format("{0}-report-{1}.log", AssemblyInfo.ProductName, DateTime.Now.ToString("yyyyMMMdd_hhmmss"));
@@ -16,7 +16,7 @@ namespace WorkTimer4
 
             var e = exception;
             var sb = new StringBuilder();
-            while (e!= null)
+            while (e is not null)
             {
                 sb.AppendLine(e.Message);
                 sb.AppendLine(e.StackTrace);

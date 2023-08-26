@@ -33,6 +33,14 @@ namespace WorkTimer4.Connectors
         /// </summary>
         public string? Colour { get; set; }
 
+        public string Summary
+        {
+            get
+            {
+                return (this.End - this.Start).TotalHours.ToString("F3");
+            }
+        }
+
 
         public TimesheetActivity()
         {
@@ -49,10 +57,7 @@ namespace WorkTimer4.Connectors
 
         public override string ToString()
         {
-            var pc = this.ProjectCode ?? "(undefined)";
-            var ac = this.ActivityCode ?? "(undefined)";
-
-            return string.Format("{0} {1}", pc, ac);
+            return string.Format("{0} {1}", this.ProjectCode, this.ActivityCode);
         }
     }
 }

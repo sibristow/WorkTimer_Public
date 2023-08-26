@@ -35,8 +35,11 @@ namespace WorkTimer4.Controls
         private static void IconSource_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var notifyIcon = ((NotifyIconWrapper)d)._notifyIcon;
-            if (notifyIcon == null)
+            if (notifyIcon is null)
                 return;
+
+            if (notifyIcon.Icon is not null)
+                notifyIcon.Icon.Dispose();
 
             notifyIcon.Icon = Assets.WinFormsAssets.GetResourceIcon(e.NewValue?.ToString());
         }
@@ -44,11 +47,11 @@ namespace WorkTimer4.Controls
         private static void Projects_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var wrapper = d as NotifyIconWrapper;
-            if (wrapper == null)
+            if (wrapper is null)
                 return;
 
             var notifyIcon = wrapper._notifyIcon;
-            if (notifyIcon == null)
+            if (notifyIcon is null)
                 return;
 
 
@@ -68,7 +71,7 @@ namespace WorkTimer4.Controls
         private static void ToolTipText_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var notifyIcon = ((NotifyIconWrapper)d)._notifyIcon;
-            if (notifyIcon == null)
+            if (notifyIcon is null)
                 return;
 
             notifyIcon.Text = (string)e.NewValue;
@@ -162,7 +165,7 @@ namespace WorkTimer4.Controls
             this.ClearContextMenuProjects();
 
             var collection = sender as IList<ProjectGroup>;
-            if (collection != null)
+            if (collection is not null)
             {
                 this.CreateContextMenuProjects(collection);
             }
@@ -225,7 +228,7 @@ namespace WorkTimer4.Controls
 
         private void CreateContextMenuProjects(IList<ProjectGroup> groups)
         {
-            if (groups == null)
+            if (groups is null)
             {
                 return;
             }
@@ -235,7 +238,7 @@ namespace WorkTimer4.Controls
             {
                 var menustrip = this._notifyIcon?.ContextMenuStrip;
 
-                if (menustrip == null)
+                if (menustrip is null)
                 {
                     menustrip = this.CreateDefaultMenu();
                 }
@@ -261,7 +264,7 @@ namespace WorkTimer4.Controls
         {
             var groupItem = new ToolStripMenuItem(group.Name);
 
-            if (group.Projects == null)
+            if (group.Projects is null)
             {
                 return groupItem;
             }
@@ -278,7 +281,7 @@ namespace WorkTimer4.Controls
 
         private ToolStripMenuItem[] AddUngroupedProjects(ProjectGroup group)
         {
-            if (group.Projects == null)
+            if (group.Projects is null)
             {
                 return new ToolStripMenuItem[] { };
             }
@@ -300,7 +303,7 @@ namespace WorkTimer4.Controls
             App.Current.Dispatcher.Invoke(() =>
             {
                 var menustrip = this._notifyIcon?.ContextMenuStrip;
-                if (menustrip == null)
+                if (menustrip is null)
                     return;
 
                 for (var i = menustrip.Items.Count; i > 0; i--)
@@ -361,9 +364,9 @@ namespace WorkTimer4.Controls
         {
             var menuItem = sender as DoubleHeightMenuItem;
 
-            if (this._notifyIcon != null)
+            if (this._notifyIcon is not null)
             {
-                this._notifyIcon.ContextMenuStrip.Items[2].Enabled = menuItem != null;
+                this._notifyIcon.ContextMenuStrip.Items[2].Enabled = (menuItem is not null);
             }
 
             var projectArgs = new ProjectSelectedEventArgs(menuItem?.Project);

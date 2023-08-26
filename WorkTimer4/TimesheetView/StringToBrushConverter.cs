@@ -15,7 +15,7 @@ namespace WorkTimer4.TimesheetView
                 return Brushes.Black;
             try
             {
-                return brushConverter.ConvertFrom(value);
+                return brushConverter.ConvertFrom(value) ?? Brushes.Transparent;
             }
             catch
             {
