@@ -1,4 +1,6 @@
-﻿namespace WorkTimer4.API.Connectors
+﻿using WorkTimer4.API.Data;
+
+namespace WorkTimer4.API.Connectors
 {
     public interface ITimesheetConnector
     {
@@ -19,6 +21,6 @@
         /// <param name="currentActivity">
         /// the current activity if one is set
         /// </param>
-        void ViewTimesheet(Data.Activity? currentActivity);
+        void ViewTimesheet(Data.Activity? currentActivity, WindowSize timeSheetWindow, System.Action<double, double>? onPositionUpdated);
     }
 }

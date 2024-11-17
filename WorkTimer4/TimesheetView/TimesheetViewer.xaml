@@ -15,7 +15,7 @@
         Title="Timesheet Viewer"
         ShrinkTitleBarWhenMaximized="False"
         PlaceTitleBarOverContent="False"
-        Height="450" Width="800">
+        Height="{Binding Height, Mode=TwoWay}" Width="{Binding Width, Mode=TwoWay}">
 
     <Grid>
         <Grid.RowDefinitions>

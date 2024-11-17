@@ -15,6 +15,8 @@ namespace WorkTimer4.TimesheetView
         private DateTimeOffset toFilter;
         private IEnumerable<TimesheetActivity> recorded;
         private double reportingFraction;
+        private double width;
+        private double height;
 
 
         /// <summary>
@@ -130,22 +132,41 @@ namespace WorkTimer4.TimesheetView
             }
         }
 
-
-
-        public TimesheetViewModel(List<TimesheetActivity> recorded)
+        public double Width
         {
-            this.to = DateTime.Today;
-            this.from = this.To.GetPreviousMonday();
-            this.recorded = recorded ?? Enumerable.Empty<TimesheetActivity>();
-            this.reportingFraction = DateAggregation.DEFAULT_REPORTING;
+            get
+            {
+                return width;
+            }
+            set
+            {
+                this.SetProperty(ref width, value);
+            }
         }
 
-        internal TimesheetViewModel()
+        public double Height
         {
-            this.to = DateTime.Today;
-            this.from = this.To.GetPreviousMonday();
-            this.recorded = Enumerable.Empty<TimesheetActivity>();
+            get
+            {
+                return height;
+            }
+            set
+            {
+                this.SetProperty(ref height, value);
+            }
+        }
+
+
+        public TimesheetViewModel(List<TimesheetActivity> recorded, WindowSize windowSize)
+        {
+            // use the properties instead of the fields to ensure the filters are correctly set as well for the beginning and end of the days
+            this.To = DateTime.Today;
+            this.From = this.To.GetPreviousMonday();
+
+            this.recorded = recorded ?? Enumerable.Empty<TimesheetActivity>();
             this.reportingFraction = DateAggregation.DEFAULT_REPORTING;
+            this.height = windowSize.Height;
+            this.width = windowSize.Width;
         }
     }
 }
