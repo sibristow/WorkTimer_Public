@@ -8,8 +8,10 @@ namespace WorkTimer4.TimesheetView
     /// <summary>
     /// Converts total hours to a string showing total hours and reported hours
     /// </summary>
-    internal class ReportingConverter : IMultiValueConverter
+    public class ReportingConverter : IMultiValueConverter
     {
+        public static ReportingConverter Instance = new ReportingConverter();
+
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             if (values[0] == DependencyProperty.UnsetValue)

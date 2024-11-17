@@ -38,7 +38,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Row="0" Grid.ColumnSpan="9" Grid.RowSpan="2"
+        <Border Grid.Row="0" Grid.ColumnSpan="12" Grid.RowSpan="2"
                 BorderThickness="0,1,0,1"
                 BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer1BorderBrush}}"
                 Background="{DynamicResource {x:Static adonisUi:Brushes.Layer1BackgroundBrush}}"/>
@@ -52,10 +52,15 @@
         <TextBlock Grid.Row="1" Grid.Column="6" Text="Reporting:" Margin="8" VerticalAlignment="Center"/>
         <TextBox Grid.Row="1" Grid.Column="7" Text="{Binding ReportingFraction}" Margin="8" Width="50"/>
 
-        <local:AggregatedTimesheetView Grid.Row="2" Grid.ColumnSpan="9" Margin="8" TimesheetActivities="{Binding Recorded}" FromFilter="{Binding FromFilter}" ToFilter="{Binding ToFilter}" ReportingFraction="{Binding ReportingFraction, Mode=OneWay}"/>
+        <local:AggregatedTimesheetView Grid.Row="2" Grid.ColumnSpan="12" Margin="8"
+                                       TimesheetActivities="{Binding Recorded}"
+                                       FromFilter="{Binding FromFilter}"
+                                       ToFilter="{Binding ToFilter}"
+                                       ReportingFraction="{Binding ReportingFraction, Mode=OneWay}"/>
 
-        <Border Grid.Row="3" Grid.ColumnSpan="9" Height="1" BorderThickness="1" BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer1BorderBrush}}"/>
+        <!--<Border Grid.Row="3" Grid.ColumnSpan="12" Height="1" BorderThickness="1" BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer1BorderBrush}}"/>-->
+        <GridSplitter Grid.Row="3" Grid.ColumnSpan="12" Height="3" Margin="0,2" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer1BorderBrush}}"/>
 
-        <local:TimeLine Grid.Row="4" Grid.ColumnSpan="9" Margin="8" TimeLineActivities="{Binding Recorded}" FromFilter="{Binding FromFilter}" ToFilter="{Binding ToFilter}"/>
+        <local:TimeLine Grid.Row="4" Grid.ColumnSpan="12" Margin="8" TimeLineActivities="{Binding Recorded}" FromFilter="{Binding FromFilter}" ToFilter="{Binding ToFilter}"/>
     </Grid>
 </adonisControls:AdonisWindow>
