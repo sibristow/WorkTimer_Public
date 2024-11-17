@@ -17,8 +17,6 @@ namespace WorkTimer4.TimesheetView
         internal const string HEADER_DATE_FORMAT = "ddd, dd MMM";
         private const int FIXED_COL_COUNT = 3;
 
-        internal static ReportingConverter ReportingConverter = new ReportingConverter();
-
 
         public static IEnumerable<DateTimeOffset> GetDateList(DependencyObject obj)
         {
@@ -125,7 +123,7 @@ namespace WorkTimer4.TimesheetView
             var multiBinding = new MultiBinding()
             {
                 Mode = BindingMode.OneWay,
-                Converter = ReportingConverter,
+                Converter = ReportingConverter.Instance,
                 FallbackValue = " - ",
                 TargetNullValue = " - "
             };

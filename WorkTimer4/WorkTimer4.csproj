@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>Assets\clock_blue.ico</ApplicationIcon>
     <Nullable>enable</Nullable>
     <AssemblyName>WorkTimer4</AssemblyName>
     <AssemblyTitle>Work Timer 4</AssemblyTitle>
-    <Version>4.6.0</Version>
+    <Version>4.7.0</Version>
     <Authors>Simon Bristow</Authors>
     <Company />
     <Product>Work Timer 4</Product>
@@ -19,10 +19,11 @@
 
   <ItemGroup>
     <PackageReference Include="AdonisUI.ClassicTheme" Version="1.17.1" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
     <PackageReference Include="PropertyTools.Wpf" Version="3.1.0" />
-    <PackageReference Include="System.Composition" Version="6.0.0" />
+    <PackageReference Include="System.Composition" Version="8.0.0" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.11" />
   </ItemGroup>
 
   <ItemGroup>

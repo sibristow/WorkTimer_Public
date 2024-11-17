@@ -65,7 +65,7 @@ namespace WorkTimer4.API.Connectors
             return this.Name.GetHashCode();
         }
 
-        public abstract void ViewTimesheet(Activity? currentActivity);
+        public abstract void ViewTimesheet(Activity? currentActivity, WindowSize timeSheetWindow, Action<double, double>? onPositionUpdated);
 
         /// <summary>
         /// Called when the activity is ready to be recorded

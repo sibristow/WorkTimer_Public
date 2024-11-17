@@ -29,7 +29,7 @@ namespace WorkTimer4.Connectors
             this.ReportingFraction = DateAggregation.DEFAULT_REPORTING;
         }
 
-        public override void ViewTimesheet(Activity? currentActivity)
+        public override void ViewTimesheet(Activity? currentActivity, WindowSize timeSheetWindow, Action<double, double>? onPositionUpdated)
         {
             // read recorded activities
             var recorded = this.ReadFile(this.currentRollingFile);
@@ -42,9 +42,11 @@ namespace WorkTimer4.Connectors
                 recorded.Add(new TimesheetActivity(currentActivity));
             }
 
-            var vm = new TimesheetViewModel(recorded) {  ReportingFraction = this.ReportingFraction };
+            var vm = new TimesheetViewModel(recorded, timeSheetWindow) {  ReportingFraction = this.ReportingFraction };
             var window = new TimesheetViewer() { DataContext = vm };
             window.ShowDialog();
+
+            onPositionUpdated?.Invoke(vm.Width, vm.Height);
         }
 
         protected override void OnRecordingActivity(Activity activity, string rolledFile)

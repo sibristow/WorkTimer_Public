@@ -152,7 +152,9 @@ namespace WorkTimer4.TimesheetView
         /// <exception cref="NotImplementedException"></exception>
         private void AddTotal(HashSet<AggregatedTimesheetEntry> dateAggregation)
         {
-            var row = new AggregatedTimesheetEntry("Summary", "Total") { IsSummaryRow = true };
+            double totalHours = 0.0;
+
+            var row = new AggregatedTimesheetEntry("Summary", "Day Total") { IsSummaryRow = true };
             foreach(var entry in dateAggregation)
             {
                 foreach(var hours in entry.AggregatedHours)
@@ -163,10 +165,17 @@ namespace WorkTimer4.TimesheetView
                     }
 
                     row.AggregatedHours[hours.Key] += hours.Value;
+                    totalHours += hours.Value;
                 }
             }
 
             dateAggregation.Add(row);
+
+            // add a summary row for the whole period
+            var periodRow = new AggregatedTimesheetEntry(string.Empty, "Period Total") { IsSummaryRow = true };
+            var firstDayKey = row.AggregatedHours.FirstOrDefault().Key ?? "period";
+            periodRow.AggregatedHours[firstDayKey] = totalHours;
+            dateAggregation.Add(periodRow);
         }
 
         /// <summary>

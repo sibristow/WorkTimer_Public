@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using WorkTimer4.API.Data;
 
 namespace WorkTimer4
 {
@@ -17,12 +18,18 @@ namespace WorkTimer4
         /// </summary>
         public bool NotifyOnUnlock { get; set; }
 
+        /// <summary>
+        /// Gets or sets the timesheet window size and position
+        /// </summary>
+        public WindowSize TimesheetWindow { get; set; }
+
 
         public ApplicationConfigJson()
         {
             this.ProjectConnectorOptions = new Dictionary<string, object?>();
             this.TimesheetConnectorOptions = new Dictionary<string, object?>();
             this.NotifyOnUnlock = true;
+            this.TimesheetWindow = new WindowSize();
         }
     }
 }

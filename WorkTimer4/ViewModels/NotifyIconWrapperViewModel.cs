@@ -124,7 +124,13 @@ namespace WorkTimer4.ViewModels
         {
             if (this.applicationConfig.TimesheetConnector is not null)
             {
-                this.applicationConfig.TimesheetConnector.ViewTimesheet(this.currentActivity);
+                Action<double, double> onPositionUpdated = (w, h) =>
+                {
+                    this.applicationConfig.TimesheetWindow = new WindowSize(w, h);
+                    ApplicationConfig.Save(applicationConfig);
+                };
+
+                this.applicationConfig.TimesheetConnector.ViewTimesheet(this.currentActivity, this.applicationConfig.TimesheetWindow, onPositionUpdated);
             }
         }
 

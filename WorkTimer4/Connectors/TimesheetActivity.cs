@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 using WorkTimer4.API.Data;
 
 namespace WorkTimer4.Connectors
@@ -33,13 +34,30 @@ namespace WorkTimer4.Connectors
         /// </summary>
         public string? Colour { get; set; }
 
+        /// <summary>
+        /// Gets the duration summary
+        /// </summary>
+        [JsonIgnore]
         public string Summary
         {
             get
             {
-                return (this.End - this.Start).TotalHours.ToString("F3");
+                return this.Duration.ToString("F3");
             }
         }
+
+        /// <summary>
+        /// Gets the duration of the activity
+        /// </summary>
+        [JsonIgnore]
+        public double Duration
+        {
+            get
+            {
+                return (this.End - this.Start).TotalHours;
+            }
+        }
+
 
 
         public TimesheetActivity()

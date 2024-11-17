@@ -38,10 +38,13 @@ namespace WorkTimer4
 
         public bool NotifyOnUnlock { get; set; }
 
+        public WindowSize TimesheetWindow { get; set; }
+
 
         internal ApplicationConfig()
         {
             this.ProjectGroups = new ObservableCollection<ProjectGroup>();
+            this.TimesheetWindow = new WindowSize();
         }
 
 
@@ -68,6 +71,8 @@ namespace WorkTimer4
 
             config.NotifyOnUnlock = appConfigJson.NotifyOnUnlock;
 
+            config.TimesheetWindow = appConfigJson.TimesheetWindow;
+
             return config;
         }
 
@@ -82,7 +87,8 @@ namespace WorkTimer4
                 ProjectConnectorOptions = GetOptions(config.ProjectConnector),
                 TimesheetConnector = config.TimesheetConnector?.GetType().FullName,
                 TimesheetConnectorOptions = GetOptions(config.TimesheetConnector),
-                NotifyOnUnlock = config.NotifyOnUnlock
+                NotifyOnUnlock = config.NotifyOnUnlock,
+                TimesheetWindow = config.TimesheetWindow
             };
 
             var serialised = JsonSerializer.Serialize(configJson, JsonSerialisation.SerialiserOptions);
@@ -104,6 +110,28 @@ namespace WorkTimer4
                 return null;
 
             return CreateConnector(sourceConnector);
+        }
+
+        internal void GetProjects()
+        {
+            this.ProjectGroups.Clear();
+
+            if (this.ProjectConnector is null)
+            {
+                return;
+            }
+
+            var projects = this.ProjectConnector.GetProjects();
+
+            if (projects is null)
+            {
+                return;
+            }
+
+            foreach (var gp in projects)
+            {
+                this.ProjectGroups.Add(gp);
+            }
         }
 
 
@@ -236,29 +264,6 @@ namespace WorkTimer4
             }
 
             return dictionary;
-        }
-
-
-        internal void GetProjects()
-        {
-            this.ProjectGroups.Clear();
-
-            if (this.ProjectConnector is null)
-            {
-                return;
-            }
-
-            var projects = this.ProjectConnector.GetProjects();
-
-            if (projects is null)
-            {
-                return;
-            }
-
-            foreach(var gp in projects)
-            {
-                this.ProjectGroups.Add(gp);
-            }
         }
 
         private void AttachProjectConnectorEvents()
