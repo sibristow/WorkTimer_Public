@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using WorkTimer4.API.Data;
 
@@ -11,6 +12,7 @@ namespace WorkTimer4.TimesheetView
     /// <summary>
     /// Attached properties and behaviours for generating the aggregation table columns and binding the aggregated hours
     /// </summary>
+    [StyleTypedProperty(Property = "HeaderStyle", StyleTargetType = typeof(DataGridColumnHeader))]    
     internal class DateAggregation
     {
         internal const double DEFAULT_REPORTING = 0.25;

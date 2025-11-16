@@ -13,6 +13,8 @@ namespace WorkTimer4.TimesheetView
     // https://stackoverflow.com/questions/37949599/how-to-dynamically-draw-a-timeline-in-wpf
     internal class EventStartConverter : IMultiValueConverter
     {
+        public double VerticalMargin { get; set; } = 4.0;
+
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             DateOnly date = (DateOnly)values[0];
@@ -25,7 +27,7 @@ namespace WorkTimer4.TimesheetView
 
             if (targetType == typeof(Thickness))
             {
-                return new Thickness(rval, 4, 0, 4);
+                return new Thickness(rval, this.VerticalMargin, 0, this.VerticalMargin);
             }
             else
             {

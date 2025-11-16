@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Work Timer"
-#define MyAppVersion "4.5.0"
+#define MyAppVersion "4.8.0"
 #define MyAppExeName "WorkTimer4.exe"
 #define PublishPath ".\publish"
 
@@ -33,9 +33,11 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "{#PublishPath}\projects.json"; DestDir: "{userdocs}\WorkTimer"; Flags: ignoreversion
 Source: "{#PublishPath}\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#PublishPath}\projects.json"; DestDir: "{userdocs}\WorkTimer"; Flags: ignoreversion
 Source: "{#PublishPath}\config.json"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#PublishPath}\AdonisUI.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#PublishPath}\AdonisUI.ClassisTheme.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PublishPath}\CommunityToolkit.Mvvm.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PublishPath}\Microsoft.Xaml.Behaviors.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PublishPath}\PropertyTools.dll"; DestDir: "{app}"; Flags: ignoreversion
@@ -45,6 +47,7 @@ Source: "{#PublishPath}\System.Composition.Convention.dll"; DestDir: "{app}"; Fl
 Source: "{#PublishPath}\System.Composition.Hosting.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PublishPath}\System.Composition.Runtime.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PublishPath}\System.Composition.TypedParts.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#PublishPath}\System.Drawing.Common.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PublishPath}\WorkTimer4.API.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PublishPath}\WorkTimer4.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PublishPath}\WorkTimer4.runtimeconfig.json"; DestDir: "{app}"; Flags: ignoreversion

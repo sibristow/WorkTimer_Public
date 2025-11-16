@@ -9,13 +9,20 @@
     <Nullable>enable</Nullable>
     <AssemblyName>WorkTimer4</AssemblyName>
     <AssemblyTitle>Work Timer 4</AssemblyTitle>
-    <Version>4.7.0</Version>
+    <Version>4.8.0</Version>
     <Authors>Simon Bristow</Authors>
     <Company />
     <Product>Work Timer 4</Product>
     <PackageIcon>clock.png</PackageIcon>
     <StartupObject>WorkTimer4.App</StartupObject>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="ColourSchemes\**" />
+    <EmbeddedResource Remove="ColourSchemes\**" />
+    <None Remove="ColourSchemes\**" />
+    <Page Remove="ColourSchemes\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AdonisUI.ClassicTheme" Version="1.17.1" />
@@ -32,6 +39,7 @@
 
   <ItemGroup>
     <Resource Include="Assets\arrow_refresh.png" />
+    <Resource Include="Assets\bullet_go.png" />
     <Resource Include="Assets\clock.png" />
     <Resource Include="Assets\clock_blue.ico" />
     <Resource Include="Assets\clock_red.ico" />
@@ -39,6 +47,7 @@
     <Resource Include="Assets\control_pause.png" />
     <Resource Include="Assets\cross.png" />
     <Resource Include="Assets\error.png" />
+    <Resource Include="Assets\folder.png" />
     <Resource Include="Assets\folder_image.png" />
     <Resource Include="Assets\tag_blue.png" />
     <Resource Include="Assets\tag_green.png" />
