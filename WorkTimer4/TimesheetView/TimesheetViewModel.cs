@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Input;
+using AdonisUI.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Win32;
 using WorkTimer4.API.Data;
 using WorkTimer4.Connectors;
 
@@ -9,15 +12,34 @@ namespace WorkTimer4.TimesheetView
 {
     internal class TimesheetViewModel : ObservableObject
     {
+        private const string DEFAULT_TITLE = "Timesheet Viewer";
+
         private DateTime from;
         private DateTime to;
         private DateTimeOffset fromFilter;
         private DateTimeOffset toFilter;
         private IEnumerable<TimesheetActivity> recorded;
+        private readonly string? dataFile;
+        private readonly List<TimesheetActivity>? current;
         private double reportingFraction;
         private double width;
         private double height;
+        private string title;
 
+        /// <summary>
+        /// Gets or sets the window title
+        /// </summary>
+        public string Title
+        {
+            get
+            {
+                return title;
+            }
+            set
+            {
+                this.SetProperty(ref this.title, value);
+            }
+        }
 
         /// <summary>
         /// Gets or sets the date to filter the timesheet from
@@ -156,17 +178,77 @@ namespace WorkTimer4.TimesheetView
             }
         }
 
+        public ICommand OpenFileCommand { get; }
 
-        public TimesheetViewModel(List<TimesheetActivity> recorded, WindowSize windowSize)
+        public ICommand RevertToCurrentCommand { get; }
+
+
+        public TimesheetViewModel(List<TimesheetActivity> recorded, WindowSize windowSize, string? dataFile)
         {
             // use the properties instead of the fields to ensure the filters are correctly set as well for the beginning and end of the days
             this.To = DateTime.Today;
             this.From = this.To.GetPreviousMonday();
 
             this.recorded = recorded ?? Enumerable.Empty<TimesheetActivity>();
+            this.dataFile = dataFile;
+            this.current = recorded;
             this.reportingFraction = DateAggregation.DEFAULT_REPORTING;
             this.height = windowSize.Height;
             this.width = windowSize.Width;
+            this.title = DEFAULT_TITLE;
+
+            this.OpenFileCommand = new Command(this.OnOpenFile);
+            this.RevertToCurrentCommand = new Command(this.OnRevertToCurrent);
+        }
+
+
+        private void OnOpenFile(object? obj)
+        {
+            var window = obj as AdonisWindow;
+
+            var ofd = new OpenFileDialog()
+            {
+                CheckFileExists = true,
+                Title = "Select Timesheet file",
+                Filter = "Timesheet Files|*.json|All Files|*.*"
+            };
+
+            if (this.dataFile is not null)
+            {
+                ofd.DefaultExt = System.IO.Path.GetExtension(this.dataFile);
+                ofd.DefaultDirectory = System.IO.Path.GetDirectoryName(this.dataFile);
+                ofd.InitialDirectory = ofd.DefaultDirectory;
+                ofd.FileName = this.dataFile;
+            }
+
+            var result = ofd.ShowDialog(window);
+
+            if (result is null || !result.Value)
+            {
+                return;
+            }
+
+            try
+            {
+                var read = DefaultTimesheetConnector.ReadFile(ofd.FileName);
+                this.Recorded = read;
+                this.From = this.Recorded.Min(r => r.Start).Date;
+                this.To = this.Recorded.Max(r => r.End).Date;
+                this.Title = string.Format("{0} - {1}", DEFAULT_TITLE, System.IO.Path.GetFileName(ofd.FileName));
+            }
+            catch
+            {
+                MessageBox.Show(window, "Could not open timesheet file.", "Open Timesheet", MessageBoxButton.OK, MessageBoxImage.Error);
+                this.Title = DEFAULT_TITLE;
+            }
+        }
+
+        private void OnRevertToCurrent(object? obj)
+        {
+            this.Recorded = this.current ?? Enumerable.Empty<TimesheetActivity>();
+            this.To = DateTime.Today;
+            this.From = this.To.GetPreviousMonday();
+            this.Title = DEFAULT_TITLE;
         }
     }
 }

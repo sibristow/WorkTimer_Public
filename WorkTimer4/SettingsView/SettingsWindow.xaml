@@ -10,26 +10,18 @@
         xmlns:assets="clr-namespace:WorkTimer4.Assets"
         mc:Ignorable="d"
         Title="Settings"
+        WindowStartupLocation="CenterScreen"
+        Style="{StaticResource WindowStyle}"
         Height="500" Width="950"
         MinHeight="400" MinWidth="800">
 
-    <adonisControls:AdonisWindow.Style>
-        <Style TargetType="adonisControls:AdonisWindow" BasedOn="{StaticResource {x:Type adonisControls:AdonisWindow}}">
-            <Setter Property="IconVisibility" Value="Collapsed"/>
-            <Setter Property="TitleVisibility" Value="Collapsed"/>
-            <Setter Property="ShrinkTitleBarWhenMaximized" Value="False"/>
-            <Setter Property="PlaceTitleBarOverContent" Value="True"/>
-            <Setter Property="TitleBarContent">
-                <Setter.Value>
-                    <DockPanel Height="20" Margin="{adonisUi:Space 2}">
-                        <Image DockPanel.Dock="Left" Source="{x:Static assets:WPFAssets.ClockBlue}" Height="16" VerticalAlignment="Center"/>
-                        <TextBlock Margin="16,0" FontWeight="SemiBold" FontSize="14" Text="{Binding Title, RelativeSource={RelativeSource FindAncestor, AncestorType=local:SettingsWindow}}"/>
-                    </DockPanel>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </adonisControls:AdonisWindow.Style>
-
+    <adonisControls:AdonisWindow.TitleBarContent>
+        <DockPanel Height="20" Margin="{adonisUi:Space 2}">
+            <Image DockPanel.Dock="Left" Source="{x:Static assets:WPFAssets.ClockBlue}" Height="16" VerticalAlignment="Center"/>
+            <TextBlock Margin="16,0" FontWeight="SemiBold" FontSize="14" Text="{Binding Title, RelativeSource={RelativeSource FindAncestor, AncestorType=local:SettingsWindow}}"/>
+        </DockPanel>
+    </adonisControls:AdonisWindow.TitleBarContent>
+    
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="160" />
@@ -50,25 +42,14 @@
                 SelectedItem="{Binding SelectedPage, ValidatesOnDataErrors=False, ValidatesOnNotifyDataErrors=False}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Name}" Margin="4,8"/>
+                    <TextBlock Text="{Binding Name}" Margin="4,8" Style="{StaticResource SettingGroupLabelStyle}"/>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
 
         <!-- Selected Content -->
         <Border Grid.Row="1" Grid.Column="1" Margin="16,0">
-            <ContentPresenter Content="{Binding SelectedPage}">
-                <!--<ContentPresenter.Style>
-                    <Style TargetType="ContentPresenter">
-                        <Setter Property="ContentTemplate" Value="{x:Null}"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding SelectedPage}" Value="{x:Type local:ProjectSettingsPage}">
-                                <Setter Property="ContentTemplate" Value="{StaticResource ProjectSettingsTemplate}"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </ContentPresenter.Style>-->
-            </ContentPresenter>
+            <ContentPresenter Content="{Binding SelectedPage}" />
         </Border>
 
         <Border Grid.Row="2" Grid.Column="1" BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer1BorderBrush}}" BorderThickness="0,1,0,0">

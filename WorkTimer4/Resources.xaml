@@ -5,7 +5,8 @@
                     xmlns:pt="http://propertytools.org/wpf"
                     xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
                     xmlns:assets="clr-namespace:WorkTimer4.Assets"
-                    xmlns:local="clr-namespace:WorkTimer4">
+                    xmlns:local="clr-namespace:WorkTimer4"
+                    xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI">
 
     <!-- the application's NotifyIcon - started from App.xaml.cs. Declares its own view model. -->
     <controls:NotifyIconWrapper x:Key="TaskBarIcon" Projects="{Binding Projects}" ToolTipText="{Binding ToolTip}">
@@ -21,7 +22,15 @@
         </controls:NotifyIconWrapper.Style>
     </controls:NotifyIconWrapper>
 
-
+    <Style x:Key="WindowStyle" TargetType="{x:Type adonisControls:AdonisWindow}" BasedOn="{StaticResource {x:Type adonisControls:AdonisWindow}}">
+        <Setter Property="IconVisibility" Value="Collapsed"/>
+        <Setter Property="TitleVisibility" Value="Collapsed"/>
+        <Setter Property="ShrinkTitleBarWhenMaximized" Value="False"/>
+        <Setter Property="PlaceTitleBarOverContent" Value="True"/>
+        <Setter Property="ShowInTaskbar" Value="True" />
+        <Setter Property="WindowState" Value="Normal" />
+        <Setter Property="WindowStyle" Value="SingleBorderWindow" />
+    </Style>
 
     <!-- settings pages -->
     <Style x:Key="SettingLabelStyle" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource {x:Type TextBlock}}">

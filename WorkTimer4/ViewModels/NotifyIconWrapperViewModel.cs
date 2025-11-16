@@ -14,6 +14,7 @@ namespace WorkTimer4.ViewModels
         private readonly ApplicationConfig applicationConfig;
         private string? toolTip;
         private Activity? currentActivity;
+        private Project? previousProject;
         private string? activeIcon;
 
         /// <summary>
@@ -21,7 +22,9 @@ namespace WorkTimer4.ViewModels
         /// </summary>
         public bool ShutdownCalled { get; private set; }
 
-        public string CurrentActivityName { get { return this.currentActivity?.Project?.Name ?? string.Empty; } }
+        public string CurrentProjectName { get { return this.currentActivity?.Project?.Name ?? string.Empty; } }
+
+        public string PreviousProjectName { get { return this.previousProject?.Name ?? string.Empty; } }
 
         public string? ToolTip
         {
@@ -79,6 +82,14 @@ namespace WorkTimer4.ViewModels
                 this.ProjectSelected(null);
                 return;
             }
+        }
+
+        /// <summary>
+        /// Called after unlocking to switch to the previous project
+        /// </summary>
+        public void SwitchToPreviousProject()
+        {
+            this.ProjectSelected(new Events.ProjectSelectedEventArgs(this.previousProject));          
         }
 
         /// <summary>
@@ -172,9 +183,10 @@ namespace WorkTimer4.ViewModels
                 var logFile = ExceptionLogger.LogException(ex);
 
                 string msg = string.Format("An error occurred recording the activity.\r\n\r\nLog output is at\r\n{0}", logFile);
-                MessageBox.Show(msg, AssemblyInfo.ProductName, MessageBoxButton.OK, MessageBoxImage.Error);
+                AdonisUI.Controls.MessageBox.Show(msg, AssemblyInfo.ProductName, AdonisUI.Controls.MessageBoxButton.OK, AdonisUI.Controls.MessageBoxImage.Error);
             }
 
+            this.previousProject = this.currentActivity.Project;
             this.currentActivity = null;
             this.SetToolTip(null);
             this.IsActive = false;
@@ -192,6 +204,6 @@ namespace WorkTimer4.ViewModels
             }
 
             this.ToolTip = string.Format("{0}\r\n{1}", AssemblyInfo.ProductName, text);
-        }
+        }        
     }
 }

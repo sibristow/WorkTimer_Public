@@ -32,7 +32,7 @@ namespace WorkTimer4.Connectors
         public override void ViewTimesheet(Activity? currentActivity, WindowSize timeSheetWindow, Action<double, double>? onPositionUpdated)
         {
             // read recorded activities
-            var recorded = this.ReadFile(this.currentRollingFile);
+            var recorded = ReadFile(this.currentRollingFile);
 
             // include the current activity (if there is one)
             if (currentActivity is not null)
@@ -42,30 +42,14 @@ namespace WorkTimer4.Connectors
                 recorded.Add(new TimesheetActivity(currentActivity));
             }
 
-            var vm = new TimesheetViewModel(recorded, timeSheetWindow) {  ReportingFraction = this.ReportingFraction };
+            var vm = new TimesheetViewModel(recorded, timeSheetWindow, this.DataFile) {  ReportingFraction = this.ReportingFraction };
             var window = new TimesheetViewer() { DataContext = vm };
             window.ShowDialog();
 
             onPositionUpdated?.Invoke(vm.Width, vm.Height);
         }
 
-        protected override void OnRecordingActivity(Activity activity, string rolledFile)
-        {
-            var tsActivity = new TimesheetActivity(activity);
-
-            // read the existing activities
-            var activityList = this.ReadFile(rolledFile);
-
-            // insert the activity in chronological order
-            this.InsertTimesheetActivity(activityList, tsActivity);
-
-            // save the updated list
-            var text = JsonSerializer.Serialize(activityList, API.Json.JsonSerialisation.SerialiserOptions);
-            File.WriteAllText(rolledFile, text);
-        }
-
-
-        private List<TimesheetActivity> ReadFile(string? file)
+        internal static List<TimesheetActivity> ReadFile(string? file)
         {
             if (file is null || !File.Exists(file))
             {
@@ -74,6 +58,21 @@ namespace WorkTimer4.Connectors
 
             var text = File.ReadAllText(file);
             return JsonSerializer.Deserialize<List<TimesheetActivity>>(text, API.Json.JsonSerialisation.SerialiserOptions) ?? new List<TimesheetActivity>();
+        }
+
+        protected override void OnRecordingActivity(Activity activity, string rolledFile)
+        {
+            var tsActivity = new TimesheetActivity(activity);
+
+            // read the existing activities
+            var activityList = ReadFile(rolledFile);
+
+            // insert the activity in chronological order
+            this.InsertTimesheetActivity(activityList, tsActivity);
+
+            // save the updated list
+            var text = JsonSerializer.Serialize(activityList, API.Json.JsonSerialisation.SerialiserOptions);
+            File.WriteAllText(rolledFile, text);
         }
 
         private void InsertTimesheetActivity(List<TimesheetActivity> activityList, TimesheetActivity timesheetActivity)

@@ -71,10 +71,20 @@ namespace WorkTimer4
                 return;
             }
 
-            if (this.vm is not null && this.vm.IsActive && (this.config?.NotifyOnUnlock ?? true))
+            if (this.vm is null || !this.vm.IsActive || !(this.config?.NotifyOnUnlock ?? true))
             {
-                DialogWindow.Show(AssemblyInfo.ProductName, "The current activity is:", Environment.NewLine, Environment.NewLine, $"\b{this.vm.CurrentActivityName}");
+                return;
             }
+
+            //UnlockWindow.Show(AssemblyInfo.ProductName, "The current activity is:", $"\b{this.vm.CurrentActivityName}", Environment.NewLine, Environment.NewLine, "The previous activity was:", $"\b{this.vm.PreviousActivityName}");
+            var result = UnlockWindow.Show(this.vm.CurrentProjectName, this.vm.PreviousProjectName);
+            if (result.HasValue && !result.Value)
+            {
+                // switch to previous
+                this.vm.SwitchToPreviousProject();
+            }
+               
+            // keep current activity
         }
 
         private void SystemEvents_SessionEnding(object sender, SessionEndingEventArgs e)

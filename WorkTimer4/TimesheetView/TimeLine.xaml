@@ -3,16 +3,23 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:local="clr-namespace:WorkTimer4.TimesheetView"
              xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
 
     <UserControl.Resources>
-        <local:EventStartConverter x:Key="EventStartConverter"/>
+        <local:EventStartConverter x:Key="EventStartConverter" VerticalMargin="6"/>
         <local:EventWidthConverter x:Key="EventWidthConverter"/>
         <local:StringToBrushConverter x:Key="StringToBrushConverter"/>
-
+        <local:AlternationToBrushConverter x:Key="AlternationToBrushConverter" 
+                                           EvenBrush="Transparent" 
+                                           OddBrush="WhiteSmoke"/>
+        
+        <sys:Double x:Key="RowHeight">30</sys:Double>
+        <GridLength x:Key="DateColumnWidth">82</GridLength>
+        
         <Style x:Key="TimeLineHourMarkerStyle" TargetType="{x:Type Border}">
             <Setter Property="BorderThickness" Value="1,0,0,0"/>
             <Setter Property="BorderBrush" Value="{DynamicResource {x:Static adonisUi:Brushes.Layer1BorderBrush}}"/>
@@ -22,6 +29,7 @@
 
         <Style x:Key="TimeLineHourLabelStyle" TargetType="{x:Type TextBlock}">
             <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
 
         <Style x:Key="TimeLineEventStyle" TargetType="{x:Type Rectangle}">
@@ -29,11 +37,34 @@
             <Setter Property="VerticalAlignment" Value="Stretch"/>
         </Style>
 
-        <GridLength x:Key="DateColumnWidth">80</GridLength>
+        <Style x:Key="TimeLineRowBorderStyle" TargetType="{x:Type Border}">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
+            <Setter Property="Margin" Value="0,6,0,-4"/>
+            <Setter Property="BorderBrush" 
+                Value="{DynamicResource {x:Static adonisUi:Brushes.Layer2BorderBrush}}"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=ContentPresenter}"
+                         Path="(ItemsControl.AlternationIndex)"
+                         Converter="{StaticResource AlternationToBrushConverter}" />
+                </Setter.Value>
+            </Setter>
+
+        </Style>
+
+        <Style x:Key="TimeLineRowDateTextBlockStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
     </UserControl.Resources>
 
     <ScrollViewer>
-        <ItemsControl ItemsSource="{Binding Path=TimeLineDays, RelativeSource={RelativeSource AncestorType={x:Type local:TimeLine}}}">
+        <ItemsControl ItemsSource="{Binding Path=TimeLineDays, RelativeSource={RelativeSource AncestorType={x:Type local:TimeLine}}}"  AlternationCount="2">
             <ItemsControl.Template>
                 <ControlTemplate TargetType="ItemsControl">
                     <Grid>
@@ -58,7 +89,7 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Column="0" Text="UTC" Style="{StaticResource TimeLineHourLabelStyle}" HorizontalAlignment="Right" Margin="0,0,8,0"/>
-
+                        
                         <ItemsPresenter Grid.Row="1" Grid.ColumnSpan="13"/>
 
                         <Border Grid.Column="1" Style="{StaticResource TimeLineHourMarkerStyle}"/>
@@ -102,74 +133,72 @@
             </ItemsControl.Template>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="{StaticResource DateColumnWidth}"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource TimeLineRowBorderStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="{StaticResource DateColumnWidth}"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="{Binding Date, StringFormat='{}{0:ddd, dd MMM}'}"
-                                   Height="20"
-                                   VerticalAlignment="Center"
-                                   HorizontalAlignment="Stretch"
-                                   TextAlignment="Center"
-                                   Background="{DynamicResource {x:Static adonisUi:Brushes.Layer2BackgroundBrush}}"/>
+                            <TextBlock Grid.Column="0" 
+                                       Text="{Binding Date, StringFormat='{}{0:ddd, dd MMM}'}"                                        
+                                       Style="{StaticResource TimeLineRowDateTextBlockStyle}"/>
 
+                            <ItemsControl x:Name="TimeLine" Grid.Column="1" ItemsSource="{Binding Path=Activities}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <Grid x:Name="EventContainer" Height="{StaticResource RowHeight}" Margin="0"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Rectangle Fill="{Binding Colour, Converter={StaticResource StringToBrushConverter}}" Style="{StaticResource TimeLineEventStyle}">
+                                            <Rectangle.Margin>
+                                                <MultiBinding Converter="{StaticResource EventStartConverter}">
+                                                    <Binding ElementName="TimeLine" Path="DataContext.Date"/>
+                                                    <Binding Path="Start"/>
+                                                    <Binding ElementName="EventContainer" Path="ActualWidth"/>
+                                                </MultiBinding>
+                                            </Rectangle.Margin>
+                                            <Rectangle.Width>
+                                                <MultiBinding Converter="{StaticResource EventWidthConverter}">
+                                                    <Binding Path="Start"/>
+                                                    <Binding Path="End"/>
+                                                    <Binding ElementName="EventContainer" Path="ActualWidth"/>
+                                                </MultiBinding>
+                                            </Rectangle.Width>
+                                            <Rectangle.ToolTip>
+                                                <ToolTip DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding}" FontWeight="SemiBold"/>
+                                                        <Rectangle Fill="{Binding Colour, Converter={StaticResource StringToBrushConverter}}" Height="3" Margin="0,5"/>
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="50"/>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition/>
+                                                                <RowDefinition/>
+                                                                <RowDefinition/>
+                                                            </Grid.RowDefinitions>
 
-                        <ItemsControl x:Name="TimeLine" Grid.Column="1" ItemsSource="{Binding Path=Activities}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <Grid x:Name="EventContainer" Height="20" Margin="0,4" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer2BackgroundBrush}}"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Rectangle Fill="{Binding Colour, Converter={StaticResource StringToBrushConverter}}" Style="{StaticResource TimeLineEventStyle}">
-                                        <Rectangle.Margin>
-                                            <MultiBinding Converter="{StaticResource EventStartConverter}">
-                                                <Binding ElementName="TimeLine" Path="DataContext.Date"/>
-                                                <Binding Path="Start"/>
-                                                <Binding ElementName="EventContainer" Path="ActualWidth"/>
-                                            </MultiBinding>
-                                        </Rectangle.Margin>
-                                        <Rectangle.Width>
-                                            <MultiBinding Converter="{StaticResource EventWidthConverter}">
-                                                <Binding Path="Start"/>
-                                                <Binding Path="End"/>
-                                                <Binding ElementName="EventContainer" Path="ActualWidth"/>
-                                            </MultiBinding>
-                                        </Rectangle.Width>
-                                        <Rectangle.ToolTip>
-                                            <ToolTip DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
-                                                <StackPanel>
-                                                    <TextBlock Text="{Binding}" FontWeight="SemiBold"/>
-                                                    <Rectangle Fill="{Binding Colour, Converter={StaticResource StringToBrushConverter}}" Height="3" Margin="0,5"/>
-                                                    <Grid>
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="50"/>
-                                                            <ColumnDefinition Width="Auto"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <Grid.RowDefinitions>
-                                                            <RowDefinition/>
-                                                            <RowDefinition/>
-                                                            <RowDefinition/>
-                                                        </Grid.RowDefinitions>
-
-                                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Hours:" FontWeight="SemiBold" />
-                                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Start:" FontWeight="SemiBold" />
-                                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="End:" FontWeight="SemiBold" />
-                                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Summary}"/>
-                                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Start, StringFormat='{}{0:HH:mm:ss}'}"/>
-                                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding End, StringFormat='{}{0:HH:mm:ss}'}"/>
-                                                    </Grid>
-                                                </StackPanel>
-                                            </ToolTip>
-                                        </Rectangle.ToolTip>
-                                    </Rectangle>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </Grid>
+                                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Hours:" FontWeight="SemiBold" />
+                                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Start:" FontWeight="SemiBold" />
+                                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="End:" FontWeight="SemiBold" />
+                                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Summary}"/>
+                                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Start, StringFormat='{}{0:HH:mm:ss}'}"/>
+                                                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding End, StringFormat='{}{0:HH:mm:ss}'}"/>
+                                                        </Grid>
+                                                    </StackPanel>
+                                                </ToolTip>
+                                            </Rectangle.ToolTip>
+                                        </Rectangle>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
+                    </Border>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

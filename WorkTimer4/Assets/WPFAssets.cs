@@ -10,6 +10,7 @@ namespace WorkTimer4.Assets
         public static ImageSource? ClockBlue = CreateImageResource("../assets/clock.png");
         public static ImageSource? Folder = CreateImageResource("../assets/folder_image.png");
         public static ImageSource? Cross = CreateImageResource("../assets/cross.png");
+        public static ImageSource? Time = CreateImageResource("../assets/time.png");
 
         public static ImageSource? GetImageResource(string? resource)
         {
